@@ -4,7 +4,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 type TranslationKey = string;
 type TranslationParams = Record<string, string | number>;
 
+// Generic translation object structure
 interface Translations {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -28,24 +30,27 @@ const loadTranslations = async () => {
   }
 };
 
-// Initialize translations
-loadTranslations();
+// Initialize translations lazily when hook is first used
 
 export const useTranslation = () => {
   const { language } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Check if translations are loaded
-    if (translations.en && Object.keys(translations.en).length > 0) {
+    const init = async () => {
+      if (Object.keys(translations.en).length === 0) {
+        await loadTranslations();
+      }
       setIsLoaded(true);
-    }
+    };
+    init();
   }, []);
 
   const t = (key: TranslationKey, params?: TranslationParams): string => {
     if (!isLoaded) return key;
 
     const keys = key.split('.');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any = translations[language];
 
     for (const k of keys) {
