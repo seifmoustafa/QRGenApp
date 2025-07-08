@@ -200,16 +200,33 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
                           style={{ imageRendering: 'pixelated' }}
                         />
                       </div>
-                      <p className={`text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-center' : 'text-center'}`}>
-                        {t('qrGenerator.recordNumber', { number: (index + 1).toString() })}
-                      </p>
-                      <p className={`text-xs text-gray-500 truncate ${isRTL ? 'text-center' : 'text-center'}`}>
-                        {Object.keys(qrCodeData.record)
-                          .filter(key => key !== 'id')
-                          .slice(0, 2)
-                          .map(key => `${key}: ${qrCodeData.record[key]}`)
-                          .join(', ')}
-                      </p>
+                      {('hesab_no' in qrCodeData.record || 'nsn' in qrCodeData.record) ? (
+                        <>
+                          {'hesab_no' in qrCodeData.record && (
+                            <p className={`text-xs text-gray-500 ${isRTL ? 'text-center' : 'text-center'}`}>
+                              hesab_no: {qrCodeData.record.hesab_no}
+                            </p>
+                          )}
+                          {'nsn' in qrCodeData.record && (
+                            <p className={`text-xs text-gray-500 ${isRTL ? 'text-center' : 'text-center'}`}>
+                              nsn: {qrCodeData.record.nsn}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p className={`text-sm font-medium text-gray-700 mb-1 ${isRTL ? 'text-center' : 'text-center'}`}>
+                            {t('qrGenerator.recordNumber', { number: (index + 1).toString() })}
+                          </p>
+                          <p className={`text-xs text-gray-500 truncate ${isRTL ? 'text-center' : 'text-center'}`}>
+                            {Object.keys(qrCodeData.record)
+                              .filter(key => key !== 'id')
+                              .slice(0, 2)
+                              .map(key => `${key}: ${qrCodeData.record[key]}`)
+                              .join(', ')}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}

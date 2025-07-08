@@ -87,20 +87,37 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         // Add QR code image
         pdf.addImage(imgData, 'PNG', x, y, qrSize, qrSize);
         
-        // Add record number below QR code
+        // Add text below QR code
+        let textY = y + qrSize + 5;
+        const hasSpecial = 'hesab_no' in qrCodeData.record || 'nsn' in qrCodeData.record;
         pdf.setFontSize(8);
-        const recordNumberText = isRTL
-          ? formatArabicText(t('qrGenerator.recordNumber', { number: (i + 1).toString() }))
-          : t('qrGenerator.recordNumber', { number: (i + 1).toString() });
-        pdf.text(recordNumberText, x + qrSize / 2, y + qrSize + 5, { align: 'center' });
-        
-        // Add record ID
-        pdf.setFontSize(6);
-        const recordId = qrCodeData.record.id.length > 20 
-          ? qrCodeData.record.id.substring(0, 20) + '...'
-          : qrCodeData.record.id;
-        const recordIdText = isRTL ? formatArabicText(recordId) : recordId;
-        pdf.text(recordIdText, x + qrSize / 2, y + qrSize + 10, { align: 'center' });
+
+        if (hasSpecial) {
+          if ('hesab_no' in qrCodeData.record) {
+            const text = isRTL
+              ? formatArabicText(`hesab_no: ${String(qrCodeData.record.hesab_no)}`)
+              : `hesab_no: ${String(qrCodeData.record.hesab_no)}`;
+            pdf.text(text, x + qrSize / 2, textY, { align: 'center' });
+            textY += 5;
+          }
+          if ('nsn' in qrCodeData.record) {
+            const text = isRTL
+              ? formatArabicText(`nsn: ${String(qrCodeData.record.nsn)}`)
+              : `nsn: ${String(qrCodeData.record.nsn)}`;
+            pdf.text(text, x + qrSize / 2, textY, { align: 'center' });
+          }
+        } else {
+          const recordNumberText = isRTL
+            ? formatArabicText(t('qrGenerator.recordNumber', { number: (i + 1).toString() }))
+            : t('qrGenerator.recordNumber', { number: (i + 1).toString() });
+          pdf.text(recordNumberText, x + qrSize / 2, textY, { align: 'center' });
+          pdf.setFontSize(6);
+          const recordId = qrCodeData.record.id.length > 20
+            ? qrCodeData.record.id.substring(0, 20) + '...'
+            : qrCodeData.record.id;
+          const recordIdText = isRTL ? formatArabicText(recordId) : recordId;
+          pdf.text(recordIdText, x + qrSize / 2, textY + 5, { align: 'center' });
+        }
       }
       
       // Add footer to all pages
