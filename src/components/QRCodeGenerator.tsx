@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { ExcelRecord, QRCodeData } from '../types';
 import { QrCode, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface QRCodeGeneratorProps {
   data: ExcelRecord[];

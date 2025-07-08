@@ -2,6 +2,7 @@ import React from 'react';
 import { ExcelRecord } from '../types';
 import { Table, Eye } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DataTableProps {
   data: ExcelRecord[];

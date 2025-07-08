@@ -3,6 +3,7 @@ import { Upload, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ExcelRecord } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ExcelUploaderProps {
   onDataLoad: (data: ExcelRecord[]) => void;

@@ -3,6 +3,7 @@ import { jsPDF } from 'jspdf';
 import { QRCodeData } from '../types';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PDFExporterProps {
   qrCodes: QRCodeData[];
