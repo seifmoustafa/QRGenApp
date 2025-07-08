@@ -25,8 +25,8 @@
     "generatedOn": "تم الإنشاء في"
   },
   "header": {
-    "title": "مولد رموز QR من إكسل",
-    "subtitle": "حول بيانات إكسل إلى رموز QR قابلة للمسح"
+    "title": "مولد رموز QR من إكسل مع تصدير PDF",
+    "subtitle": "حول بيانات إكسل إلى رموز QR قابلة للمسح مع إمكانية التصدير إلى PDF"
   },
   "steps": {
     "step1": {
@@ -35,70 +35,70 @@
     },
     "step2": {
       "title": "راجع بياناتك",
-      "description": "اعرض البيانات المرفوعة وأنشئ رموز QR لكل سجل"
+      "description": "اعرض البيانات المرفوعة وتأكد من صحتها قبل إنشاء رموز QR"
     },
     "step3": {
       "title": "إنشاء رموز QR",
-      "description": "يتم إنشاء رموز QR لكل سجل في مجموعة البيانات الخاصة بك"
+      "description": "يتم إنشاء رموز QR عالية الجودة لكل سجل في مجموعة البيانات الخاصة بك"
     },
     "step4": {
       "title": "تصدير إلى PDF",
-      "description": "حمل رموز QR الخاصة بك كملف PDF قابل للطباعة"
+      "description": "حمل جميع رموز QR الخاصة بك كملف PDF منظم وقابل للطباعة"
     }
   },
   "uploader": {
     "title": "مولد رموز QR من إكسل",
-    "subtitle": "ارفع ملف إكسل لإنشاء رموز QR لكل سجل",
-    "clickToUpload": "انقر لرفع ملف إكسل",
+    "subtitle": "ارفع ملف إكسل أو CSV لإنشاء رموز QR لكل سجل بياناتك",
+    "clickToUpload": "انقر لرفع ملف إكسل أو CSV",
     "supportedFormats": "يدعم ملفات .xlsx و .xls و .csv",
     "tips": {
       "title": "نصائح للحصول على أفضل النتائج:",
-      "tip1": "تأكد من أن ملف إكسل يحتوي على عناوين في الصف الأول",
-      "tip2": "كل صف سينشئ رمز QR فريد",
-      "tip3": "ستحتوي رموز QR على جميع البيانات من كل سجل",
-      "tip4": "يمكنك تصدير جميع رموز QR كملف PDF للطباعة"
+      "tip1": "تأكد من أن ملف إكسل يحتوي على عناوين واضحة في الصف الأول",
+      "tip2": "كل صف سينشئ رمز QR فريد يحتوي على جميع بيانات ذلك السجل",
+      "tip3": "رموز QR ستحتوي على جميع البيانات من كل عمود في السجل",
+      "tip4": "يمكنك تصدير جميع رموز QR كملف PDF منظم للطباعة والمشاركة"
     },
     "errors": {
-      "invalidFileType": "يرجى رفع ملف إكسل صالح (.xlsx، .xls) أو ملف CSV",
-      "emptyFile": "يبدو أن ملف إكسل فارغ",
-      "readError": "خطأ في قراءة ملف إكسل. يرجى التأكد من أنه ملف إكسل صالح."
+      "invalidFileType": "يرجى رفع ملف إكسل صالح (.xlsx، .xls) أو ملف CSV (.csv)",
+      "emptyFile": "يبدو أن الملف المرفوع فارغ أو لا يحتوي على بيانات",
+      "readError": "خطأ في قراءة الملف. يرجى التأكد من أنه ملف إكسل أو CSV صالح وغير تالف."
     }
   },
   "dataTable": {
-    "title": "معاينة البيانات",
-    "previewQRCodes": "معاينة رموز QR",
-    "showingFirst": "عرض أول {{count}} سجل من {{total}} سجل إجمالي"
+    "title": "معاينة البيانات المرفوعة",
+    "previewQRCodes": "معاينة وإنشاء رموز QR",
+    "showingFirst": "عرض أول {{count}} سجل من إجمالي {{total}} سجل"
   },
   "qrGenerator": {
-    "title": "إنشاء رموز QR",
-    "generating": "جاري إنشاء رموز QR... ({{current}} من {{total}})",
+    "title": "مولد رموز QR المتقدم",
+    "generating": "جاري إنشاء رموز QR عالية الجودة... ({{current}} من {{total}})",
     "complete": "{{count}}% مكتمل",
-    "completed": "مكتمل",
-    "generatingStatus": "جاري الإنشاء...",
-    "qrCodesCount": "{{generated}} من {{total}} رمز QR",
-    "noQRCodes": "لم يتم إنشاء رموز QR. يرجى المحاولة مرة أخرى.",
+    "completed": "تم الانتهاء بنجاح",
+    "generatingStatus": "جاري المعالجة...",
+    "qrCodesCount": "تم إنشاء {{generated}} من أصل {{total}} رمز QR",
+    "noQRCodes": "لم يتم إنشاء أي رموز QR. يرجى المحاولة مرة أخرى أو التحقق من البيانات.",
     "recordNumber": "السجل رقم {{number}}"
   },
   "pdfExporter": {
-    "title": "تصدير PDF",
-    "subtitle": "تصدير رموز QR كملف PDF",
-    "description": "حمل جميع رموز QR الـ {{count}} بتنسيق PDF قابل للطباعة",
+    "title": "تصدير PDF المتقدم",
+    "subtitle": "تصدير رموز QR كملف PDF احترافي",
+    "description": "حمل جميع رموز QR الـ {{count}} بتنسيق PDF عالي الجودة وقابل للطباعة",
     "stats": {
       "totalQRCodes": "إجمالي رموز QR",
-      "format": "التنسيق",
-      "quality": "الجودة",
-      "formatValue": "PDF A4",
-      "qualityValue": "عالية"
+      "format": "تنسيق الملف",
+      "quality": "جودة الطباعة",
+      "formatValue": "PDF بحجم A4",
+      "qualityValue": "عالية الدقة"
     },
     "exportButton": "تصدير إلى PDF",
-    "generating": "جاري إنشاء PDF...",
+    "generating": "جاري إنشاء ملف PDF...",
     "filename": "رموز-qr-{{date}}.pdf",
     "errors": {
-      "generateError": "خطأ في إنشاء PDF. يرجى المحاولة مرة أخرى."
+      "generateError": "حدث خطأ أثناء إنشاء ملف PDF. يرجى المحاولة مرة أخرى."
     }
   },
   "footer": {
-    "builtWith": "تم البناء باستخدام React و TypeScript وتقنيات الويب الحديثة"
+    "builtWith": "تم تطوير هذا التطبيق باستخدام React و TypeScript وأحدث تقنيات الويب"
   },
   "language": {
     "english": "English",

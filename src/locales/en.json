@@ -25,8 +25,8 @@
     "generatedOn": "Generated on"
   },
   "header": {
-    "title": "Excel QR Generator",
-    "subtitle": "Transform your Excel data into scannable QR codes"
+    "title": "Excel QR Code Generator with PDF Export",
+    "subtitle": "Transform your Excel data into scannable QR codes with professional PDF export"
   },
   "steps": {
     "step1": {
@@ -35,66 +35,66 @@
     },
     "step2": {
       "title": "Review Your Data",
-      "description": "Preview your uploaded data and generate QR codes for each record"
+      "description": "Preview your uploaded data and verify its accuracy before generating QR codes"
     },
     "step3": {
       "title": "QR Code Generation",
-      "description": "QR codes are being generated for each record in your dataset"
+      "description": "High-quality QR codes are being generated for each record in your dataset"
     },
     "step4": {
       "title": "Export to PDF",
-      "description": "Download your QR codes as a printable PDF file"
+      "description": "Download all your QR codes as an organized, printable PDF file"
     }
   },
   "uploader": {
     "title": "Excel QR Code Generator",
-    "subtitle": "Upload your Excel file to generate QR codes for each record",
-    "clickToUpload": "Click to upload Excel file",
+    "subtitle": "Upload your Excel or CSV file to generate QR codes for each data record",
+    "clickToUpload": "Click to upload Excel or CSV file",
     "supportedFormats": "Supports .xlsx, .xls, and .csv files",
     "tips": {
       "title": "Tips for best results:",
-      "tip1": "Ensure your Excel file has headers in the first row",
-      "tip2": "Each row will generate a unique QR code",
-      "tip3": "QR codes will contain all data from each record",
-      "tip4": "You can export all QR codes as PDF for printing"
+      "tip1": "Ensure your Excel file has clear headers in the first row",
+      "tip2": "Each row will generate a unique QR code containing all data from that record",
+      "tip3": "QR codes will contain all data from each column in the record",
+      "tip4": "You can export all QR codes as an organized PDF for printing and sharing"
     },
     "errors": {
-      "invalidFileType": "Please upload a valid Excel file (.xlsx, .xls) or CSV file",
-      "emptyFile": "The Excel file appears to be empty",
-      "readError": "Error reading the Excel file. Please ensure it's a valid Excel file."
+      "invalidFileType": "Please upload a valid Excel file (.xlsx, .xls) or CSV file (.csv)",
+      "emptyFile": "The uploaded file appears to be empty or contains no data",
+      "readError": "Error reading the file. Please ensure it's a valid Excel or CSV file and not corrupted."
     }
   },
   "dataTable": {
-    "title": "Data Preview",
-    "previewQRCodes": "Preview QR Codes",
+    "title": "Uploaded Data Preview",
+    "previewQRCodes": "Preview & Generate QR Codes",
     "showingFirst": "Showing first {{count}} records of {{total}} total records"
   },
   "qrGenerator": {
-    "title": "QR Code Generation",
-    "generating": "Generating QR codes... ({{current}} of {{total}})",
+    "title": "Advanced QR Code Generator",
+    "generating": "Generating high-quality QR codes... ({{current}} of {{total}})",
     "complete": "{{count}}% complete",
-    "completed": "Completed",
-    "generatingStatus": "Generating...",
-    "qrCodesCount": "{{generated}} of {{total}} QR codes",
-    "noQRCodes": "No QR codes generated. Please try again.",
+    "completed": "Successfully completed",
+    "generatingStatus": "Processing...",
+    "qrCodesCount": "Generated {{generated}} of {{total}} QR codes",
+    "noQRCodes": "No QR codes generated. Please try again or check your data.",
     "recordNumber": "Record #{{number}}"
   },
   "pdfExporter": {
-    "title": "PDF Export",
-    "subtitle": "Export QR Codes as PDF",
-    "description": "Download all {{count}} QR codes in a printable PDF format",
+    "title": "Advanced PDF Export",
+    "subtitle": "Export QR Codes as Professional PDF",
+    "description": "Download all {{count}} QR codes in a high-quality, printable PDF format",
     "stats": {
       "totalQRCodes": "Total QR Codes",
-      "format": "Format",
-      "quality": "Quality",
+      "format": "File Format",
+      "quality": "Print Quality",
       "formatValue": "A4 PDF",
-      "qualityValue": "High"
+      "qualityValue": "High Resolution"
     },
     "exportButton": "Export to PDF",
-    "generating": "Generating PDF...",
+    "generating": "Generating PDF file...",
     "filename": "qr-codes-{{date}}.pdf",
     "errors": {
-      "generateError": "Error generating PDF. Please try again."
+      "generateError": "An error occurred while generating the PDF file. Please try again."
     }
   },
   "footer": {
