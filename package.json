@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "arabic-persian-reshaper": "^1.0.1",
+    "bidi-js": "^1.0.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.344.0",
