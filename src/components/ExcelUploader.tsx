@@ -51,7 +51,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
         })) as ExcelRecord[];
 
         onDataLoad(dataWithIds);
-      } catch (error) {
+      } catch {
         onError(t('uploader.errors.readError'));
       }
     };

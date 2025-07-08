@@ -32,8 +32,6 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       const codesPerColumn = Math.floor((pageHeight - 2 * margin) / (qrSize + spacing + 15)); // +15 for text
       const codesPerPage = codesPerRow * codesPerColumn;
       
-      let currentPage = 1;
-      let codeIndex = 0;
 
       // Add title to first page
       pdf.setFontSize(16);
@@ -52,7 +50,6 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         // Check if we need a new page
         if (i > 0 && pagePosition === 0) {
           pdf.addPage();
-          currentPage++;
         }
         
         // Calculate x and y positions

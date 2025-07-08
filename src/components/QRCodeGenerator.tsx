@@ -140,6 +140,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
     };
 
     generateQRCodes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]); // Only depend on data, not on onQRCodesGenerated
 
   if (data.length === 0) return null;

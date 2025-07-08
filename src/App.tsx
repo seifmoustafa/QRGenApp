@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LanguageProvider } from './contexts/LanguageContext';
 import ExcelUploader from './components/ExcelUploader';
 import DataTable from './components/DataTable';
@@ -13,11 +13,15 @@ import { useLanguage } from './contexts/LanguageContext';
 
 const AppContent: React.FC = () => {
   const { t } = useTranslation();
-  const { isRTL } = useLanguage();
+  const { isRTL, language } = useLanguage();
   const [excelData, setExcelData] = useState<ExcelRecord[]>([]);
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
   const [showQRCodes, setShowQRCodes] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = t('header.title');
+  }, [language, t]);
 
   const handleDataLoad = (data: ExcelRecord[]) => {
     setExcelData(data);
