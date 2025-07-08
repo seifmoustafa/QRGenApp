@@ -40,7 +40,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           const jsonData =
-            XLSX.utils.sheet_to_json<Record<string, any>>(worksheet);
+            XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
 
           if (jsonData.length === 0) {
             onError(t("uploader.errors.emptyFile"));

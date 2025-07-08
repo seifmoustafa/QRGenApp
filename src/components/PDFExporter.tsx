@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
+import fontData from '../fonts/NotoSansArabic';
 import { QRCodeData } from '../types';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
@@ -21,6 +22,13 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
     
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
+      // Embed Arabic-supporting font and enable RTL if needed
+      pdf.addFileToVFS('NotoSansArabic.ttf', fontData);
+      pdf.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
+      pdf.setFont('NotoSansArabic');
+      if (isRTL) {
+        pdf.setR2L(true);
+      }
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
