@@ -6,6 +6,7 @@ import { useTranslation } from '../hooks/useTranslation';
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
 
   const toggleLanguage = () => {
     const newLanguage = language === 'en' ? 'ar' : 'en';
@@ -18,11 +19,11 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors ${isRTL ? 'flex-row-reverse font-arabic' : ''}`}
       title={t('language.switchTo', { language: targetLanguage })}
     >
       <Languages className="w-4 h-4" />
-      <span className="hidden sm:inline">{currentLanguageLabel}</span>
+      <span className={`hidden sm:inline ${isRTL ? 'text-right' : 'text-left'}`}>{currentLanguageLabel}</span>
     </button>
   );
 };

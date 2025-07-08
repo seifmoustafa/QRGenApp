@@ -10,6 +10,7 @@ interface PDFExporterProps {
 
 const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   const [exporting, setExporting] = useState(false);
 
   const exportToPDF = async () => {
@@ -109,10 +110,10 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
   if (qrCodes.length === 0) return null;
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8">
+    <div className={`w-full max-w-4xl mx-auto mt-8 ${isRTL ? 'font-arabic' : ''}`}>
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+          <h3 className={`text-xl font-bold text-white flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <FileText className="w-6 h-6" />
             {t('pdfExporter.title')}
           </h3>
@@ -124,10 +125,10 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Download className="w-8 h-8 text-orange-600" />
               </div>
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">
+              <h4 className={`text-lg font-semibold text-gray-800 mb-2 ${isRTL ? 'text-center' : 'text-center'}`}>
                 {t('pdfExporter.subtitle')}
               </h4>
-              <p className="text-gray-600">
+              <p className={`text-gray-600 ${isRTL ? 'text-center' : 'text-center'}`}>
                 {t('pdfExporter.description', { count: qrCodes.length.toString() })}
               </p>
             </div>
@@ -135,16 +136,16 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.totalQRCodes')}</p>
+                  <p className={`font-medium text-gray-700 ${isRTL ? 'text-center' : 'text-center'}`}>{t('pdfExporter.stats.totalQRCodes')}</p>
                   <p className="text-2xl font-bold text-orange-600">{qrCodes.length}</p>
                 </div>
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.format')}</p>
-                  <p className="text-lg font-semibold text-gray-800">{t('pdfExporter.stats.formatValue')}</p>
+                  <p className={`font-medium text-gray-700 ${isRTL ? 'text-center' : 'text-center'}`}>{t('pdfExporter.stats.format')}</p>
+                  <p className={`text-lg font-semibold text-gray-800 ${isRTL ? 'text-center' : 'text-center'}`}>{t('pdfExporter.stats.formatValue')}</p>
                 </div>
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.quality')}</p>
-                  <p className="text-lg font-semibold text-gray-800">{t('pdfExporter.stats.qualityValue')}</p>
+                  <p className={`font-medium text-gray-700 ${isRTL ? 'text-center' : 'text-center'}`}>{t('pdfExporter.stats.quality')}</p>
+                  <p className={`text-lg font-semibold text-gray-800 ${isRTL ? 'text-center' : 'text-center'}`}>{t('pdfExporter.stats.qualityValue')}</p>
                 </div>
               </div>
             </div>
@@ -152,7 +153,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             <button
               onClick={exportToPDF}
               disabled={exporting}
-              className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium flex items-center gap-2 mx-auto transition-colors"
+              className={`bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium flex items-center gap-2 mx-auto transition-colors ${isRTL ? 'flex-row-reverse' : ''}`}
             >
               {exporting ? (
                 <>

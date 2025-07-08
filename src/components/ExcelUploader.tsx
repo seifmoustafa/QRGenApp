@@ -11,6 +11,7 @@ interface ExcelUploaderProps {
 
 const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) => {
   const { t } = useTranslation();
+  const { isRTL } = useLanguage();
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -55,17 +56,17 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
     };
     
     reader.readAsArrayBuffer(file);
-  }, [onDataLoad, onError]);
+  }, [onDataLoad, onError, t]);
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className={`w-full max-w-4xl mx-auto ${isRTL ? 'font-arabic' : ''}`}>
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className={`text-xl font-bold text-white flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <FileSpreadsheet className="w-6 h-6" />
             {t('uploader.title')}
           </h2>
-          <p className="text-blue-100 text-sm mt-1">
+          <p className={`text-blue-100 text-sm mt-1 ${isRTL ? 'text-right' : 'text-left'}`}>
             {t('uploader.subtitle')}
           </p>
         </div>
@@ -81,16 +82,16 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
             />
             <label
               htmlFor="excel-upload"
-              className="cursor-pointer flex flex-col items-center gap-4"
+              className={`cursor-pointer flex flex-col items-center gap-4`}
             >
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                 <Upload className="w-8 h-8 text-blue-600" />
               </div>
               <div>
-                <p className="text-lg font-medium text-gray-700">
+                <p className={`text-lg font-medium text-gray-700 ${isRTL ? 'text-center' : 'text-center'}`}>
                   {t('uploader.clickToUpload')}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className={`text-sm text-gray-500 mt-1 ${isRTL ? 'text-center' : 'text-center'}`}>
                   {t('uploader.supportedFormats')}
                 </p>
               </div>
@@ -98,11 +99,11 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
           </div>
           
           <div className="mt-6 bg-blue-50 rounded-lg p-4">
-            <div className="flex items-start gap-3">
+            <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">{t('uploader.tips.title')}</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-700">
+              <div className={`text-sm text-blue-800 ${isRTL ? 'text-right' : 'text-left'}`}>
+                <p className={`font-medium mb-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t('uploader.tips.title')}</p>
+                <ul className={`list-disc space-y-1 text-blue-700 ${isRTL ? 'list-inside text-right' : 'list-inside text-left'}`}>
                   <li>{t('uploader.tips.tip1')}</li>
                   <li>{t('uploader.tips.tip2')}</li>
                   <li>{t('uploader.tips.tip3')}</li>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLanguage, Language } from '../contexts/LanguageContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type TranslationKey = string;
 type TranslationParams = Record<string, string | number>;
@@ -8,7 +8,7 @@ interface Translations {
   [key: string]: any;
 }
 
-const translations: Record<Language, Translations> = {
+const translations: Record<string, Translations> = {
   en: {},
   ar: {}
 };
