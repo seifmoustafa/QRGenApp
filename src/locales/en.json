@@ -1,0 +1,108 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "preview": "Preview",
+    "generate": "Generate",
+    "export": "Export",
+    "startOver": "Start Over",
+    "tips": "Tips",
+    "record": "Record",
+    "records": "Records",
+    "total": "Total",
+    "page": "Page",
+    "of": "of",
+    "generatedOn": "Generated on"
+  },
+  "header": {
+    "title": "Excel QR Generator",
+    "subtitle": "Transform your Excel data into scannable QR codes"
+  },
+  "steps": {
+    "step1": {
+      "title": "Upload Your Excel File",
+      "description": "Start by uploading your Excel file containing the data you want to convert to QR codes"
+    },
+    "step2": {
+      "title": "Review Your Data",
+      "description": "Preview your uploaded data and generate QR codes for each record"
+    },
+    "step3": {
+      "title": "QR Code Generation",
+      "description": "QR codes are being generated for each record in your dataset"
+    },
+    "step4": {
+      "title": "Export to PDF",
+      "description": "Download your QR codes as a printable PDF file"
+    }
+  },
+  "uploader": {
+    "title": "Excel QR Code Generator",
+    "subtitle": "Upload your Excel file to generate QR codes for each record",
+    "clickToUpload": "Click to upload Excel file",
+    "supportedFormats": "Supports .xlsx, .xls, and .csv files",
+    "tips": {
+      "title": "Tips for best results:",
+      "tip1": "Ensure your Excel file has headers in the first row",
+      "tip2": "Each row will generate a unique QR code",
+      "tip3": "QR codes will contain all data from each record",
+      "tip4": "You can export all QR codes as PDF for printing"
+    },
+    "errors": {
+      "invalidFileType": "Please upload a valid Excel file (.xlsx, .xls) or CSV file",
+      "emptyFile": "The Excel file appears to be empty",
+      "readError": "Error reading the Excel file. Please ensure it's a valid Excel file."
+    }
+  },
+  "dataTable": {
+    "title": "Data Preview",
+    "previewQRCodes": "Preview QR Codes",
+    "showingFirst": "Showing first {{count}} records of {{total}} total records"
+  },
+  "qrGenerator": {
+    "title": "QR Code Generation",
+    "generating": "Generating QR codes... ({{current}} of {{total}})",
+    "complete": "{{count}}% complete",
+    "completed": "Completed",
+    "generatingStatus": "Generating...",
+    "qrCodesCount": "{{generated}} of {{total}} QR codes",
+    "noQRCodes": "No QR codes generated. Please try again.",
+    "recordNumber": "Record #{{number}}"
+  },
+  "pdfExporter": {
+    "title": "PDF Export",
+    "subtitle": "Export QR Codes as PDF",
+    "description": "Download all {{count}} QR codes in a printable PDF format",
+    "stats": {
+      "totalQRCodes": "Total QR Codes",
+      "format": "Format",
+      "quality": "Quality",
+      "formatValue": "A4 PDF",
+      "qualityValue": "High"
+    },
+    "exportButton": "Export to PDF",
+    "generating": "Generating PDF...",
+    "filename": "qr-codes-{{date}}.pdf",
+    "errors": {
+      "generateError": "Error generating PDF. Please try again."
+    }
+  },
+  "footer": {
+    "builtWith": "Built with React, TypeScript, and modern web technologies"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية",
+    "switchTo": "Switch to {{language}}"
+  }
+}

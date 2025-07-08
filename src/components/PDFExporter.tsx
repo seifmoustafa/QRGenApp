@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import { QRCodeData } from '../types';
 import { Download, FileText, Loader2 } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface PDFExporterProps {
   qrCodes: QRCodeData[];
 }
 
 const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
+  const { t } = useTranslation();
   const [exporting, setExporting] = useState(false);
 
   const exportToPDF = async () => {
@@ -33,9 +35,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
       // Add title to first page
       pdf.setFontSize(16);
-      pdf.text('QR Codes Export', pageWidth / 2, 20, { align: 'center' });
+      pdf.text(t('pdfExporter.title'), pageWidth / 2, 20, { align: 'center' });
       pdf.setFontSize(10);
-      pdf.text(`Total Records: ${qrCodes.length}`, pageWidth / 2, 27, { align: 'center' });
+      pdf.text(`${t('common.total')} ${t('common.records')}: ${qrCodes.length}`, pageWidth / 2, 27, { align: 'center' });
       
       for (let i = 0; i < qrCodes.length; i++) {
         const qrCodeData = qrCodes[i];
@@ -63,7 +65,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         
         // Add record number below QR code
         pdf.setFontSize(8);
-        pdf.text(`Record #${i + 1}`, x + qrSize / 2, y + qrSize + 5, { align: 'center' });
+        pdf.text(t('qrGenerator.recordNumber', { number: (i + 1).toString() }), x + qrSize / 2, y + qrSize + 5, { align: 'center' });
         
         // Add record ID
         pdf.setFontSize(6);
@@ -79,13 +81,13 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.text(
-          `Page ${i} of ${totalPages}`,
+          `${t('common.page')} ${i} ${t('common.of')} ${totalPages}`,
           pageWidth / 2,
           pageHeight - 10,
           { align: 'center' }
         );
         pdf.text(
-          `Generated on ${new Date().toLocaleDateString()}`,
+          `${t('common.generatedOn')} ${new Date().toLocaleDateString()}`,
           pageWidth - 10,
           pageHeight - 10,
           { align: 'right' }
@@ -93,11 +95,12 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       }
       
       // Save the PDF
-      pdf.save(`qr-codes-${new Date().toISOString().split('T')[0]}.pdf`);
+      const filename = t('pdfExporter.filename', { date: new Date().toISOString().split('T')[0] });
+      pdf.save(filename);
       
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
+      alert(t('pdfExporter.errors.generateError'));
     } finally {
       setExporting(false);
     }
@@ -111,7 +114,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         <div className="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-4">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
             <FileText className="w-6 h-6" />
-            PDF Export
+            {t('pdfExporter.title')}
           </h3>
         </div>
         
@@ -122,26 +125,26 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
                 <Download className="w-8 h-8 text-orange-600" />
               </div>
               <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                Export QR Codes as PDF
+                {t('pdfExporter.subtitle')}
               </h4>
               <p className="text-gray-600">
-                Download all {qrCodes.length} QR codes in a printable PDF format
+                {t('pdfExporter.description', { count: qrCodes.length.toString() })}
               </p>
             </div>
             
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">Total QR Codes</p>
+                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.totalQRCodes')}</p>
                   <p className="text-2xl font-bold text-orange-600">{qrCodes.length}</p>
                 </div>
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">Format</p>
-                  <p className="text-lg font-semibold text-gray-800">A4 PDF</p>
+                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.format')}</p>
+                  <p className="text-lg font-semibold text-gray-800">{t('pdfExporter.stats.formatValue')}</p>
                 </div>
                 <div className="text-center">
-                  <p className="font-medium text-gray-700">Quality</p>
-                  <p className="text-lg font-semibold text-gray-800">High</p>
+                  <p className="font-medium text-gray-700">{t('pdfExporter.stats.quality')}</p>
+                  <p className="text-lg font-semibold text-gray-800">{t('pdfExporter.stats.qualityValue')}</p>
                 </div>
               </div>
             </div>
@@ -154,12 +157,12 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
               {exporting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Generating PDF...
+                  {t('pdfExporter.generating')}
                 </>
               ) : (
                 <>
                   <Download className="w-5 h-5" />
-                  Export to PDF
+                  {t('pdfExporter.exportButton')}
                 </>
               )}
             </button>

@@ -1,3 +1,61 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Arabic font support */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+
+.font-arabic {
+  font-family: 'Noto Sans Arabic', sans-serif;
+}
+
+/* RTL support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .text-center {
+  text-align: center;
+}
+
+/* RTL flex direction adjustments */
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-col {
+  flex-direction: column;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* RTL margin and padding adjustments */
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .pl-4 {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+[dir="rtl"] .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}

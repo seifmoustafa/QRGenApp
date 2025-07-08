@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
+import { LanguageProvider } from './contexts/LanguageContext';
 import ExcelUploader from './components/ExcelUploader';
 import DataTable from './components/DataTable';
 import QRCodeGenerator from './components/QRCodeGenerator';
 import PDFExporter from './components/PDFExporter';
 import ErrorAlert from './components/ErrorAlert';
+import LanguageSwitcher from './components/LanguageSwitcher';
 import { ExcelRecord, QRCodeData } from './types';
 import { Sparkles } from 'lucide-react';
+import { useTranslation } from './hooks/useTranslation';
+import { useLanguage } from './contexts/LanguageContext';
 
-function App() {
+const AppContent: React.FC = () => {
+  const { t } = useTranslation();
+  const { isRTL } = useLanguage();
   const [excelData, setExcelData] = useState<ExcelRecord[]>([]);
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
   const [showQRCodes, setShowQRCodes] = useState(false);
@@ -44,7 +50,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 ${isRTL ? 'font-arabic' : ''}`}>
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -55,21 +61,24 @@ function App() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Excel QR Generator
+                  {t('header.title')}
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Transform your Excel data into scannable QR codes
+                  {t('header.subtitle')}
                 </p>
               </div>
             </div>
-            {excelData.length > 0 && (
-              <button
-                onClick={handleReset}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
-              >
-                Start Over
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher />
+              {excelData.length > 0 && (
+                <button
+                  onClick={handleReset}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
+                >
+                  {t('common.startOver')}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -83,10 +92,10 @@ function App() {
               <span className="text-xl font-bold text-blue-600">1</span>
             </div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              Upload Your Excel File
+              {t('steps.step1.title')}
             </h2>
             <p className="text-gray-600 mb-8">
-              Start by uploading your Excel file containing the data you want to convert to QR codes
+              {t('steps.step1.description')}
             </p>
           </div>
           
@@ -100,10 +109,10 @@ function App() {
                   <span className="text-xl font-bold text-green-600">2</span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                  Review Your Data
+                  {t('steps.step2.title')}
                 </h2>
                 <p className="text-gray-600 mb-8">
-                  Preview your uploaded data and generate QR codes for each record
+                  {t('steps.step2.description')}
                 </p>
               </div>
               
@@ -119,10 +128,10 @@ function App() {
                   <span className="text-xl font-bold text-purple-600">3</span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                  QR Code Generation
+                  {t('steps.step3.title')}
                 </h2>
                 <p className="text-gray-600 mb-8">
-                  QR codes are being generated for each record in your dataset
+                  {t('steps.step3.description')}
                 </p>
               </div>
               
@@ -141,10 +150,10 @@ function App() {
                   <span className="text-xl font-bold text-orange-600">4</span>
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                  Export to PDF
+                  {t('steps.step4.title')}
                 </h2>
                 <p className="text-gray-600 mb-8">
-                  Download your QR codes as a printable PDF file
+                  {t('steps.step4.description')}
                 </p>
               </div>
               
@@ -158,7 +167,7 @@ function App() {
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 py-6 text-center text-gray-600">
           <p>
-            Built with React, TypeScript, and modern web technologies
+            {t('footer.builtWith')}
           </p>
         </div>
       </footer>
@@ -166,6 +175,14 @@ function App() {
       {/* Error Alert */}
       {error && <ErrorAlert message={error} onClose={handleCloseError} />}
     </div>
+  );
+};
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

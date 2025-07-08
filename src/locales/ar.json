@@ -1,0 +1,108 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "download": "تحميل",
+    "upload": "رفع",
+    "preview": "معاينة",
+    "generate": "إنشاء",
+    "export": "تصدير",
+    "startOver": "البدء من جديد",
+    "tips": "نصائح",
+    "record": "سجل",
+    "records": "سجلات",
+    "total": "المجموع",
+    "page": "صفحة",
+    "of": "من",
+    "generatedOn": "تم الإنشاء في"
+  },
+  "header": {
+    "title": "مولد رموز QR من إكسل",
+    "subtitle": "حول بيانات إكسل إلى رموز QR قابلة للمسح"
+  },
+  "steps": {
+    "step1": {
+      "title": "ارفع ملف إكسل الخاص بك",
+      "description": "ابدأ برفع ملف إكسل الذي يحتوي على البيانات التي تريد تحويلها إلى رموز QR"
+    },
+    "step2": {
+      "title": "راجع بياناتك",
+      "description": "اعرض البيانات المرفوعة وأنشئ رموز QR لكل سجل"
+    },
+    "step3": {
+      "title": "إنشاء رموز QR",
+      "description": "يتم إنشاء رموز QR لكل سجل في مجموعة البيانات الخاصة بك"
+    },
+    "step4": {
+      "title": "تصدير إلى PDF",
+      "description": "حمل رموز QR الخاصة بك كملف PDF قابل للطباعة"
+    }
+  },
+  "uploader": {
+    "title": "مولد رموز QR من إكسل",
+    "subtitle": "ارفع ملف إكسل لإنشاء رموز QR لكل سجل",
+    "clickToUpload": "انقر لرفع ملف إكسل",
+    "supportedFormats": "يدعم ملفات .xlsx و .xls و .csv",
+    "tips": {
+      "title": "نصائح للحصول على أفضل النتائج:",
+      "tip1": "تأكد من أن ملف إكسل يحتوي على عناوين في الصف الأول",
+      "tip2": "كل صف سينشئ رمز QR فريد",
+      "tip3": "ستحتوي رموز QR على جميع البيانات من كل سجل",
+      "tip4": "يمكنك تصدير جميع رموز QR كملف PDF للطباعة"
+    },
+    "errors": {
+      "invalidFileType": "يرجى رفع ملف إكسل صالح (.xlsx، .xls) أو ملف CSV",
+      "emptyFile": "يبدو أن ملف إكسل فارغ",
+      "readError": "خطأ في قراءة ملف إكسل. يرجى التأكد من أنه ملف إكسل صالح."
+    }
+  },
+  "dataTable": {
+    "title": "معاينة البيانات",
+    "previewQRCodes": "معاينة رموز QR",
+    "showingFirst": "عرض أول {{count}} سجل من {{total}} سجل إجمالي"
+  },
+  "qrGenerator": {
+    "title": "إنشاء رموز QR",
+    "generating": "جاري إنشاء رموز QR... ({{current}} من {{total}})",
+    "complete": "{{count}}% مكتمل",
+    "completed": "مكتمل",
+    "generatingStatus": "جاري الإنشاء...",
+    "qrCodesCount": "{{generated}} من {{total}} رمز QR",
+    "noQRCodes": "لم يتم إنشاء رموز QR. يرجى المحاولة مرة أخرى.",
+    "recordNumber": "السجل رقم {{number}}"
+  },
+  "pdfExporter": {
+    "title": "تصدير PDF",
+    "subtitle": "تصدير رموز QR كملف PDF",
+    "description": "حمل جميع رموز QR الـ {{count}} بتنسيق PDF قابل للطباعة",
+    "stats": {
+      "totalQRCodes": "إجمالي رموز QR",
+      "format": "التنسيق",
+      "quality": "الجودة",
+      "formatValue": "PDF A4",
+      "qualityValue": "عالية"
+    },
+    "exportButton": "تصدير إلى PDF",
+    "generating": "جاري إنشاء PDF...",
+    "filename": "رموز-qr-{{date}}.pdf",
+    "errors": {
+      "generateError": "خطأ في إنشاء PDF. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "footer": {
+    "builtWith": "تم البناء باستخدام React و TypeScript وتقنيات الويب الحديثة"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية",
+    "switchTo": "التبديل إلى {{language}}"
+  }
+}

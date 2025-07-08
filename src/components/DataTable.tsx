@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExcelRecord } from '../types';
 import { Table, Eye } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface DataTableProps {
   data: ExcelRecord[];
@@ -8,6 +9,8 @@ interface DataTableProps {
 }
 
 const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
+  const { t } = useTranslation();
+
   if (data.length === 0) return null;
 
   // Get all unique keys from all records
@@ -23,7 +26,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
             <div className="flex items-center gap-2">
               <Table className="w-6 h-6 text-white" />
               <h3 className="text-xl font-bold text-white">
-                Data Preview ({data.length} records)
+                {t('dataTable.title')} ({data.length} {t('common.records')})
               </h3>
             </div>
             <button
@@ -31,7 +34,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
               className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
               <Eye className="w-4 h-4" />
-              Preview QR Codes
+              {t('dataTable.previewQRCodes')}
             </button>
           </div>
         </div>
@@ -76,7 +79,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
           
           {data.length > 10 && (
             <div className="mt-4 text-center text-sm text-gray-500">
-              Showing first 10 records of {data.length} total records
+              {t('dataTable.showingFirst', { count: '10', total: data.length.toString() })}
             </div>
           )}
         </div>

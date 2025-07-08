@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import QRCode from 'qrcode';
 import { ExcelRecord, QRCodeData } from '../types';
 import { QrCode, Loader2 } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface QRCodeGeneratorProps {
   data: ExcelRecord[];
@@ -9,6 +10,7 @@ interface QRCodeGeneratorProps {
 }
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenerated }) => {
+  const { t } = useTranslation();
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -146,7 +148,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
             <QrCode className="w-6 h-6" />
-            QR Code Generation
+            {t('qrGenerator.title')}
           </h3>
         </div>
         
@@ -155,7 +157,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
             <div className="text-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
               <p className="text-gray-600 mb-2">
-                Generating QR codes... ({currentRecord} of {data.length})
+                {t('qrGenerator.generating', { current: currentRecord.toString(), total: data.length.toString() })}
               </p>
               <div className="w-full bg-gray-200 rounded-full h-3 max-w-md mx-auto mb-2">
                 <div
@@ -164,7 +166,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
                 />
               </div>
               <p className="text-sm text-gray-500">
-                {Math.round(progress)}% complete
+                {t('qrGenerator.complete', { count: Math.round(progress).toString() })}
               </p>
             </div>
           )}
@@ -175,7 +177,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
                 <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <p className="text-sm font-medium">
-                    {isComplete ? 'Completed' : 'Generating...'} {qrCodes.length} of {data.length} QR codes
+                    {isComplete ? t('qrGenerator.completed') : t('qrGenerator.generatingStatus')} {t('qrGenerator.qrCodesCount', { generated: qrCodes.length.toString(), total: data.length.toString() })}
                   </p>
                 </div>
               </div>
@@ -196,7 +198,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
                         />
                       </div>
                       <p className="text-sm font-medium text-gray-700 mb-1">
-                        Record #{index + 1}
+                        {t('qrGenerator.recordNumber', { number: (index + 1).toString() })}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
                         {Object.keys(qrCodeData.record)
@@ -214,7 +216,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ data, onQRCodesGenera
           
           {!loading && qrCodes.length === 0 && data.length > 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No QR codes generated. Please try again.</p>
+              <p className="text-gray-500">{t('qrGenerator.noQRCodes')}</p>
             </div>
           )}
         </div>

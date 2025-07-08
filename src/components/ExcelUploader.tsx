@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Upload, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ExcelRecord } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ExcelUploaderProps {
   onDataLoad: (data: ExcelRecord[]) => void;
@@ -9,6 +10,8 @@ interface ExcelUploaderProps {
 }
 
 const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) => {
+  const { t } = useTranslation();
+
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -21,7 +24,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
     ];
     
     if (!allowedTypes.includes(file.type)) {
-      onError('Please upload a valid Excel file (.xlsx, .xls) or CSV file');
+      onError(t('uploader.errors.invalidFileType'));
       return;
     }
 
@@ -35,7 +38,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         
         if (jsonData.length === 0) {
-          onError('The Excel file appears to be empty');
+          onError(t('uploader.errors.emptyFile'));
           return;
         }
 
@@ -47,7 +50,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
 
         onDataLoad(dataWithIds);
       } catch (error) {
-        onError('Error reading the Excel file. Please ensure it\'s a valid Excel file.');
+        onError(t('uploader.errors.readError'));
       }
     };
     
@@ -60,10 +63,10 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <FileSpreadsheet className="w-6 h-6" />
-            Excel QR Code Generator
+            {t('uploader.title')}
           </h2>
           <p className="text-blue-100 text-sm mt-1">
-            Upload your Excel file to generate QR codes for each record
+            {t('uploader.subtitle')}
           </p>
         </div>
         
@@ -85,10 +88,10 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
               </div>
               <div>
                 <p className="text-lg font-medium text-gray-700">
-                  Click to upload Excel file
+                  {t('uploader.clickToUpload')}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  Supports .xlsx, .xls, and .csv files
+                  {t('uploader.supportedFormats')}
                 </p>
               </div>
             </label>
@@ -98,12 +101,12 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ onDataLoad, onError }) =>
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Tips for best results:</p>
+                <p className="font-medium mb-1">{t('uploader.tips.title')}</p>
                 <ul className="list-disc list-inside space-y-1 text-blue-700">
-                  <li>Ensure your Excel file has headers in the first row</li>
-                  <li>Each row will generate a unique QR code</li>
-                  <li>QR codes will contain all data from each record</li>
-                  <li>You can export all QR codes as PDF for printing</li>
+                  <li>{t('uploader.tips.tip1')}</li>
+                  <li>{t('uploader.tips.tip2')}</li>
+                  <li>{t('uploader.tips.tip3')}</li>
+                  <li>{t('uploader.tips.tip4')}</li>
                 </ul>
               </div>
             </div>
