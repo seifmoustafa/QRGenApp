@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import fontData from '../fonts/NotoSansArabic';
+import bidiFactory from 'bidi-js';
+import reshaper from 'arabic-persian-reshaper';
 import { QRCodeData } from '../types';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
@@ -14,6 +16,16 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const [exporting, setExporting] = useState(false);
+  const bidi = bidiFactory();
+  // `arabic-persian-reshaper` exports CommonJS modules
+  const { ArabicShaper } = reshaper as unknown as { ArabicShaper: { convertArabic: (s: string) => string } };
+
+  const prepareText = (text: string) => {
+    if (!isRTL) return text;
+    const shaped = ArabicShaper.convertArabic(text);
+    const embeddings = bidi.getEmbeddingLevels(shaped, 'rtl');
+    return bidi.getReorderedString(shaped, embeddings);
+  };
 
   const exportToPDF = async () => {
     if (qrCodes.length === 0) return;
@@ -43,9 +55,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
       // Add title to first page
       pdf.setFontSize(16);
-      pdf.text(t('pdfExporter.title'), pageWidth / 2, 20, { align: 'center' });
+      pdf.text(prepareText(t('pdfExporter.title')), pageWidth / 2, 20, { align: 'center', isInputRtl: isRTL });
       pdf.setFontSize(10);
-      pdf.text(`${t('common.total')} ${t('common.records')}: ${qrCodes.length}`, pageWidth / 2, 27, { align: 'center' });
+      pdf.text(prepareText(`${t('common.total')} ${t('common.records')}: ${qrCodes.length}`), pageWidth / 2, 27, { align: 'center', isInputRtl: isRTL });
       
       for (let i = 0; i < qrCodes.length; i++) {
         const qrCodeData = qrCodes[i];
@@ -72,14 +84,19 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         
         // Add record number below QR code
         pdf.setFontSize(8);
-        pdf.text(t('qrGenerator.recordNumber', { number: (i + 1).toString() }), x + qrSize / 2, y + qrSize + 5, { align: 'center' });
+        pdf.text(
+          prepareText(t('qrGenerator.recordNumber', { number: (i + 1).toString() })),
+          x + qrSize / 2,
+          y + qrSize + 5,
+          { align: 'center', isInputRtl: isRTL }
+        );
         
         // Add record ID
         pdf.setFontSize(6);
         const recordId = qrCodeData.record.id.length > 20 
           ? qrCodeData.record.id.substring(0, 20) + '...'
           : qrCodeData.record.id;
-        pdf.text(recordId, x + qrSize / 2, y + qrSize + 10, { align: 'center' });
+        pdf.text(recordId, x + qrSize / 2, y + qrSize + 10, { align: 'center', isInputRtl: isRTL });
       }
       
       // Add footer to all pages
@@ -88,16 +105,16 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.text(
-          `${t('common.page')} ${i} ${t('common.of')} ${totalPages}`,
+          prepareText(`${t('common.page')} ${i} ${t('common.of')} ${totalPages}`),
           pageWidth / 2,
           pageHeight - 10,
-          { align: 'center' }
+          { align: 'center', isInputRtl: isRTL }
         );
         pdf.text(
-          `${t('common.generatedOn')} ${new Date().toLocaleDateString()}`,
+          prepareText(`${t('common.generatedOn')} ${new Date().toLocaleDateString()}`),
           pageWidth - 10,
           pageHeight - 10,
-          { align: 'right' }
+          { align: 'right', isInputRtl: isRTL }
         );
       }
       
