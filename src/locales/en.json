@@ -90,7 +90,7 @@
   },
   "pdfExporter": {
     "totalRecords": "Total Records",
-    "title": "Advanced PDF Export",
+    "title": "QR Codes",
     "subtitle": "Export QR Codes as Professional PDF",
     "description": "Download all {{count}} QR codes in a high-quality, printable PDF format",
     "stats": {
