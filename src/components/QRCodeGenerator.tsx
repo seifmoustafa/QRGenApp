@@ -239,25 +239,25 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                           style={{ imageRendering: "pixelated" }}
                         />
                       </div>
-                      {"hesab_no" in qrCodeData.record ||
-                      "nsn" in qrCodeData.record ? (
+                      {("page_no" in qrCodeData.record && "daftr_no" in qrCodeData.record) ||
+                      ("item_id" in qrCodeData.record && "item_total" in qrCodeData.record) ? (
                         <>
-                          {"hesab_no" in qrCodeData.record && (
+                          {"daftr_no" in qrCodeData.record && "page_no" in qrCodeData.record && (
                             <p
                               className={`text-xs text-gray-500 ${
                                 isRTL ? "text-center" : "text-center"
                               }`}
                             >
-                              {t("qrGenerator.hesabNo")}: {qrCodeData.record.hesab_no}
+                              daftr_no/page_no : {qrCodeData.record.daftr_no}/{qrCodeData.record.page_no}
                             </p>
                           )}
-                          {"nsn" in qrCodeData.record && (
+                          {"item_id" in qrCodeData.record && "item_total" in qrCodeData.record && (
                             <p
                               className={`text-xs text-gray-500 ${
                                 isRTL ? "text-center" : "text-center"
                               }`}
                             >
-                              {t("qrGenerator.nsn")}: {qrCodeData.record.nsn}
+                              item_id/item_total : {qrCodeData.record.item_id}/{qrCodeData.record.item_total}
 
                             </p>
                           )}

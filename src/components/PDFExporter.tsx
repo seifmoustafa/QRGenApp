@@ -92,30 +92,37 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
         // Add text below QR code
         let textY = y + qrSize + 5;
-        const hasSpecial =
-          "hesab_no" in qrCodeData.record || "nsn" in qrCodeData.record;
+        const hasPageDaftr =
+          "page_no" in qrCodeData.record && "daftr_no" in qrCodeData.record;
+        const hasItemTotal =
+          "item_id" in qrCodeData.record && "item_total" in qrCodeData.record;
+        const hasSpecial = hasPageDaftr || hasItemTotal;
         pdf.setFontSize(8);
 
         if (hasSpecial) {
-          if ("hesab_no" in qrCodeData.record) {
+          if (hasPageDaftr) {
             const text = isRTL
               ? formatArabicText(
-                  `${t("qrGenerator.hesabNo")}: ${String(
-                    qrCodeData.record.hesab_no
-                  )}`
+                  `daftr_no/page_no : ${String(
+                    qrCodeData.record.daftr_no
+                  )}/${String(qrCodeData.record.page_no)}`
                 )
-              : `${t("qrGenerator.hesabNo")}: ${String(
-                  qrCodeData.record.hesab_no
-                )}`;
+              : `daftr_no/page_no : ${String(
+                  qrCodeData.record.daftr_no
+                )}/${String(qrCodeData.record.page_no)}`;
             pdf.text(text, x + qrSize / 2, textY, { align: "center" });
             textY += 5;
           }
-          if ("nsn" in qrCodeData.record) {
+          if (hasItemTotal) {
             const text = isRTL
               ? formatArabicText(
-                  `${t("qrGenerator.nsn")}: ${String(qrCodeData.record.nsn)}`
+                  `item_id/item_total : ${String(
+                    qrCodeData.record.item_id
+                  )}/${String(qrCodeData.record.item_total)}`
                 )
-              : `${t("qrGenerator.nsn")}: ${String(qrCodeData.record.nsn)}`;
+              : `item_id/item_total : ${String(
+                  qrCodeData.record.item_id
+                )}/${String(qrCodeData.record.item_total)}`;
             pdf.text(text, x + qrSize / 2, textY, { align: "center" });
             textY += 5;
           }
