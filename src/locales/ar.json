@@ -67,7 +67,8 @@
   "dataTable": {
     "title": "معاينة البيانات المرفوعة",
     "previewQRCodes": "معاينة وإنشاء رموز QR",
-    "showingFirst": "عرض أول {{count}} سجل من إجمالي {{total}} سجل"
+    "showingRange": "عرض السجلات {{start}}-{{end}} من إجمالي {{total}} سجل",
+    "pageSize": "عدد السجلات لكل صفحة"
   },
   "qrGenerator": {
     "title": "مولد رموز QR المتقدم",
