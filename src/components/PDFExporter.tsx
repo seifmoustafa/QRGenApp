@@ -28,9 +28,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       pdf.addFileToVFS('NotoSansArabic.ttf', fontData);
       pdf.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
       pdf.setFont('NotoSansArabic');
-      if (isRTL) {
-        pdf.setR2L(true);
-      }
+      // Avoid jsPDF's built-in RTL handling because it reverses Latin text.
+      // We already format Arabic segments ourselves so English words should
+      // remain in the proper order.
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
