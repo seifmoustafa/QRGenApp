@@ -34,7 +34,8 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       // Layout constants
       const qrSize = 40; // QR code size (mm)
       const margin = 10; // page margin (mm)
-      const spacing = 5; // gap between cells (mm)
+      const minSpacing = 5; // minimum gap between cells (mm)
+      const vertSpacing = 5; // vertical gap between rows (mm)
 
       // 1) Pre-measure every record’s text width at fontSize 8
       pdf.setFontSize(8);
@@ -77,15 +78,24 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         return Math.max(qrSize, maxLineWidth);
       });
 
-      // 2) Compute uniform cellWidth = widest text or QR, plus spacing
-      const cellWidth = Math.max(...recordWidths) + spacing;
+      // 2) Compute uniform cellWidth based on widest text or QR
+      const cellWidth = Math.max(...recordWidths);
 
-      // 3) Determine grid dimensions dynamically
-      const codesPerRow = Math.floor(
-        (pageWidth - 2 * margin + spacing) / (cellWidth + spacing)
+      // 3) Determine grid dimensions dynamically with flexible spacing
+      let codesPerRow = Math.floor(
+        (pageWidth - 2 * margin + minSpacing) / (cellWidth + minSpacing)
       );
+      codesPerRow = Math.max(1, codesPerRow);
+
+      const horizSpacing =
+        codesPerRow > 1
+          ?
+            (pageWidth - 2 * margin - codesPerRow * cellWidth) /
+            (codesPerRow - 1)
+          : 0;
+
       const codesPerColumn = Math.floor(
-        (pageHeight - 2 * margin) / (qrSize + spacing + 15)
+        (pageHeight - 2 * margin) / (qrSize + vertSpacing + 15)
       ); // 15mm reserved for text
       const codesPerPage = codesPerRow * codesPerColumn;
 
@@ -114,8 +124,8 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
         if (pagePos === 0 && i > 0) pdf.addPage();
 
-        const x = margin + col * (cellWidth + spacing);
-        const y = margin + 35 + row * (qrSize + spacing + 15);
+        const x = margin + col * (cellWidth + horizSpacing);
+        const y = margin + 35 + row * (qrSize + vertSpacing + 15);
 
         // Draw QR code
         pdf.addImage(qrData.qrCode, "PNG", x, y, qrSize, qrSize);
