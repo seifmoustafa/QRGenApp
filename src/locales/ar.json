@@ -77,7 +77,9 @@
     "generatingStatus": "جاري المعالجة...",
     "qrCodesCount": "تم إنشاء {{generated}} من أصل {{total}} رمز QR",
     "noQRCodes": "لم يتم إنشاء أي رموز QR. يرجى المحاولة مرة أخرى أو التحقق من البيانات.",
-    "recordNumber": "السجل رقم {{number}}"
+    "recordNumber": "السجل رقم {{number}}",
+    "hesabNo": "رقم الحساب",
+    "nsn": "الرقم القومي للصنف"
   },
   "pdfExporter": {
     "title": "تصدير PDF المتقدم",
