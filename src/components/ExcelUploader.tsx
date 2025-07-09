@@ -53,6 +53,8 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
           })) as ExcelRecord[];
 
           onDataLoad(dataWithIds);
+          // Clear the file input so the same file can be uploaded again
+          event.target.value = "";
         } catch {
           onError(t("uploader.errors.readError"));
         }
