@@ -24,6 +24,13 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
     try {
       const pdf = new jsPDF("p", "mm", "a4");
+      const currentDate = new Date();
+      const formattedDate = `${currentDate
+        .getDate()
+        .toString()
+        .padStart(2, "0")}/${(currentDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${currentDate.getFullYear()}`;
       // Embed Arabic-supporting font and enable RTL if needed
       pdf.addFileToVFS("NotoSansArabic.ttf", fontData);
       pdf.addFont("NotoSansArabic.ttf", "NotoSansArabic", "normal");
@@ -146,9 +153,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         pdf.text(pageText, pageWidth / 2, pageHeight - 10, { align: "center" });
         const generatedOnText = isRTL
           ? formatArabicText(
-              `${t("common.generatedOn")} ${new Date().toLocaleDateString()}`
+              `${t("common.generatedOn")} ${formattedDate}`
             )
-          : `${t("common.generatedOn")} ${new Date().toLocaleDateString()}`;
+          : `${t("common.generatedOn")} ${formattedDate}`;
         pdf.text(generatedOnText, pageWidth - 10, pageHeight - 10, {
           align: "right",
         });
