@@ -22,21 +22,16 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   const [currentRecord, setCurrentRecord] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
-  // Use ref to track if generation has started for this data
   const generationStartedRef = useRef<string>("");
   const dataHashRef = useRef<string>("");
 
-  // Create a stable hash of the data to detect when it actually changes
-  const createDataHash = (records: ExcelRecord[]) => {
-    return records.map((r) => r.id).join(",");
-  };
+  const createDataHash = (records: ExcelRecord[]) =>
+    records.map((r) => r.id).join(",");
 
   useEffect(() => {
     if (data.length === 0) return;
 
     const currentDataHash = createDataHash(data);
-
-    // Only generate if data has actually changed and we haven't started generation for this data
     if (
       currentDataHash === dataHashRef.current &&
       generationStartedRef.current === currentDataHash
@@ -44,34 +39,27 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
       return;
     }
 
-    // Reset states for new data
     setQrCodes([]);
     setLoading(true);
     setProgress(0);
     setCurrentRecord(0);
     setIsComplete(false);
 
-    // Mark that we've started generation for this data
     generationStartedRef.current = currentDataHash;
     dataHashRef.current = currentDataHash;
 
-    // Function to process QR codes in batches
     const generateQRCodesBatched = async (records: ExcelRecord[]) => {
       const codes: QRCodeData[] = [];
-      const batchSize = 3; // Smaller batch size for better stability
+      const batchSize = 3;
 
       for (let i = 0; i < records.length; i += batchSize) {
-        // Check if we should still continue (data hasn't changed)
         if (createDataHash(data) !== currentDataHash) {
-          return codes; // Stop if data changed
+          return codes;
         }
 
         const batch = records.slice(i, i + batchSize);
-
-        // Process batch
         const batchPromises = batch.map(async (record) => {
           try {
-            // Create QR code data string with better formatting
             const qrDataString = Object.keys(record)
               .filter((key) => key !== "id")
               .map((key) => `${key}: ${record[key]}`)
@@ -82,10 +70,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
               type: "image/png",
               quality: 0.92,
               margin: 1,
-              color: {
-                dark: "#000000",
-                light: "#FFFFFF",
-              },
+              color: { dark: "#000000", light: "#FFFFFF" },
               width: 256,
             });
 
@@ -94,7 +79,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
               data: qrDataString,
               qrCode: qrCodeDataUrl,
               record,
-            };
+            } as QRCodeData;
           } catch (error) {
             console.error(
               "Error generating QR code for record:",
@@ -105,26 +90,15 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
           }
         });
 
-        // Wait for batch to complete
         const batchResults = await Promise.all(batchPromises);
+        batchResults.forEach((r) => r && codes.push(r));
 
-        // Add successful results to codes array
-        batchResults.forEach((result) => {
-          if (result) {
-            codes.push(result);
-          }
-        });
-
-        // Update progress and current record
         const completed = Math.min(i + batchSize, records.length);
-        const progressPercent = (completed / records.length) * 100;
-
-        setProgress(progressPercent);
+        setProgress((completed / records.length) * 100);
         setCurrentRecord(completed);
         setQrCodes([...codes]);
 
-        // Longer delay for better stability
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((res) => setTimeout(res, 50));
       }
 
       return codes;
@@ -133,8 +107,6 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     const generateQRCodes = async () => {
       try {
         const codes = await generateQRCodesBatched(data);
-
-        // Only update if this is still the current data
         if (createDataHash(data) === currentDataHash) {
           setQrCodes(codes);
           setIsComplete(true);
@@ -150,8 +122,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     };
 
     generateQRCodes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]); // Only depend on data, not on onQRCodesGenerated
+  }, [data, onQRCodesGenerated]);
 
   if (data.length === 0) return null;
 
@@ -175,11 +146,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
           {loading && !isComplete && (
             <div className="text-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
-              <p
-                className={`text-gray-600 mb-2 ${
-                  isRTL ? "text-center" : "text-center"
-                }`}
-              >
+              <p className="text-gray-600 text-center mb-2">
                 {t("qrGenerator.generating", {
                   current: currentRecord.toString(),
                   total: data.length.toString(),
@@ -191,11 +158,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p
-                className={`text-sm text-gray-500 ${
-                  isRTL ? "text-center" : "text-center"
-                }`}
-              >
+              <p className="text-sm text-gray-500 text-center">
                 {t("qrGenerator.complete", {
                   count: Math.round(progress).toString(),
                 })}
@@ -207,12 +170,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
             <>
               <div className="mb-6 text-center">
                 <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p
-                    className={`text-sm font-medium ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <p className="text-sm font-medium text-center">
                     {isComplete
                       ? t("qrGenerator.completed")
                       : t("qrGenerator.generatingStatus")}{" "}
@@ -225,81 +184,68 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {qrCodes.map((qrCodeData, index) => (
-                  <div
-                    key={qrCodeData.id}
-                    className={`bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200`}
-                  >
-                    <div className="text-center">
-                      <div className="w-full h-48 flex items-center justify-center mb-3">
-                        <img
-                          src={qrCodeData.qrCode}
-                          alt={`QR Code ${index + 1}`}
-                          className="max-w-full max-h-full object-contain rounded-lg"
-                          style={{ imageRendering: "pixelated" }}
-                        />
-                      </div>
-                      {("page_no" in qrCodeData.record && "daftr_no" in qrCodeData.record) ||
-                      ("item_id" in qrCodeData.record && "item_total" in qrCodeData.record) ? (
-                        <>
-                          {"daftr_no" in qrCodeData.record && "page_no" in qrCodeData.record && (
-                            <p
-                              className={`text-xs text-gray-500 ${
-                                isRTL ? "text-center" : "text-center"
-                              }`}
-                            >
-                              daftr_no/page_no : {qrCodeData.record.daftr_no}/{qrCodeData.record.page_no}
-                            </p>
-                          )}
-                          {"item_id" in qrCodeData.record && "item_total" in qrCodeData.record && (
-                            <p
-                              className={`text-xs text-gray-500 ${
-                                isRTL ? "text-center" : "text-center"
-                              }`}
-                            >
-                              item_id/item_total : {qrCodeData.record.item_id}/{qrCodeData.record.item_total}
+                {qrCodes.map((qrCodeData, index) => {
+                  const { record } = qrCodeData;
+                  const hasPage = "daftr_no" in record && "page_no" in record;
+                  const hasItem = "item_id" in record && "item_total" in record;
 
+                  return (
+                    <div
+                      key={qrCodeData.id}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                    >
+                      <div className="text-center">
+                        <div className="w-full h-48 flex items-center justify-center mb-3">
+                          <img
+                            src={qrCodeData.qrCode}
+                            alt={`QR Code ${index + 1}`}
+                            className="max-w-full max-h-full object-contain rounded-lg"
+                            style={{ imageRendering: "pixelated" }}
+                          />
+                        </div>
+
+                        {hasPage || hasItem ? (
+                          <>
+                            {hasPage && (
+                              <p className="text-xs text-gray-500 text-center">
+                                {t("qrGenerator.daftr_no/page_no")}:{" "}
+                                {record.daftr_no}/{record.page_no}
+                              </p>
+                            )}
+                            {hasItem && (
+                              <p className="text-xs text-gray-500 text-center">
+                                {t("qrGenerator.item_id/item_total")}:{" "}
+                                {record.item_id}/{record.item_total}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-sm font-medium text-gray-700 mb-1 text-center">
+                              {t("qrGenerator.recordNumber", {
+                                number: (index + 1).toString(),
+                              })}
                             </p>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <p
-                            className={`text-sm font-medium text-gray-700 mb-1 ${
-                              isRTL ? "text-center" : "text-center"
-                            }`}
-                          >
-                            {t("qrGenerator.recordNumber", {
-                              number: (index + 1).toString(),
-                            })}
-                          </p>
-                          <p
-                            className={`text-xs text-gray-500 truncate ${
-                              isRTL ? "text-center" : "text-center"
-                            }`}
-                          >
-                            {Object.keys(qrCodeData.record)
-                              .filter((key) => key !== "id")
-                              .slice(0, 2)
-                              .map((key) => `${key}: ${qrCodeData.record[key]}`)
-                              .join(", ")}
-                          </p>
-                        </>
-                      )}
+                            <p className="text-xs text-gray-500 truncate text-center">
+                              {Object.keys(record)
+                                .filter((key) => key !== "id")
+                                .slice(0, 2)
+                                .map((key) => `${key}: ${record[key]}`)
+                                .join(", ")}
+                            </p>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}
 
           {!loading && qrCodes.length === 0 && data.length > 0 && (
             <div className="text-center py-8">
-              <p
-                className={`text-gray-500 ${
-                  isRTL ? "text-center" : "text-center"
-                }`}
-              >
+              <p className="text-gray-500 text-center">
                 {t("qrGenerator.noQRCodes")}
               </p>
             </div>

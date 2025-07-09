@@ -79,7 +79,13 @@
     "noQRCodes": "No QR codes generated. Please try again or check your data.",
     "recordNumber": "Record #{{number}}",
     "hesabNo": "Account Number",
-    "nsn": "National Serial Number"
+    "nsn": "National Serial Number",
+    "itemId": "Item ID",
+    "itemTotal": "Item Total",
+    "daftrNo": "Daftr No",
+    "pageNo": "Page No",
+    "daftr_no/page_no": "Daftr No / Page No",
+    "item_id/item_total": "Item ID / Item Total"
   },
   "pdfExporter": {
     "title": "Advanced PDF Export",

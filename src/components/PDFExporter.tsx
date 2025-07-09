@@ -19,158 +19,196 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
   const exportToPDF = async () => {
     if (qrCodes.length === 0) return;
-
     setExporting(true);
 
     try {
       const pdf = new jsPDF("p", "mm", "a4");
-      const currentDate = new Date();
-      const formattedDate = `${currentDate
-        .getDate()
-        .toString()
-        .padStart(2, "0")}/${(currentDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}/${currentDate.getFullYear()}`;
-      // Embed Arabic-supporting font and enable RTL if needed
-      pdf.addFileToVFS("NotoSansArabic.ttf", fontData);
-      pdf.addFont("NotoSansArabic.ttf", "NotoSansArabic", "normal");
-      pdf.setFont("NotoSansArabic");
-      // Avoid jsPDF's built-in RTL handling because it reverses Latin text.
-      // We already format Arabic segments ourselves so English words should
-      // remain in the proper order.
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      // Configuration for QR codes layout
-      const qrSize = 40; // mm
-      const margin = 10; // mm
-      const spacing = 5; // mm
+      // Embed and select Arabic-supporting font
+      pdf.addFileToVFS("NotoSansArabic.ttf", fontData);
+      pdf.addFont("NotoSansArabic.ttf", "NotoSansArabic", "normal");
+      pdf.setFont("NotoSansArabic");
+
+      // Layout constants
+      const qrSize = 40; // QR code size (mm)
+      const margin = 10; // page margin (mm)
+      const spacing = 5; // gap between cells (mm)
+
+      // 1) Pre-measure every record’s text width at fontSize 8
+      pdf.setFontSize(8);
+      const recordWidths = qrCodes.map((qrData, idx) => {
+        const { record } = qrData;
+        const hasPage = "daftr_no" in record && "page_no" in record;
+        const hasItem = "item_id" in record && "item_total" in record;
+
+        const lines: string[] = [];
+        if (hasPage) {
+          lines.push(
+            `${t("qrGenerator.daftr_no/page_no")} : ${record.daftr_no}/${
+              record.page_no
+            }`
+          );
+        }
+        if (hasItem) {
+          lines.push(
+            `${t("qrGenerator.item_id/item_total")} : ${record.item_id}/${
+              record.item_total
+            }`
+          );
+        }
+        if (!hasPage && !hasItem) {
+          lines.push(
+            t("qrGenerator.recordNumber", { number: (idx + 1).toString() })
+          );
+          const idText =
+            record.id.length > 20
+              ? record.id.substring(0, 20) + "..."
+              : record.id;
+          lines.push(idText);
+        }
+
+        const maxLineWidth = Math.max(
+          ...lines.map((ln) =>
+            pdf.getTextWidth(isRTL ? formatArabicText(ln) : ln)
+          )
+        );
+        return Math.max(qrSize, maxLineWidth);
+      });
+
+      // 2) Compute uniform cellWidth = widest text or QR, plus spacing
+      const cellWidth = Math.max(...recordWidths) + spacing;
+
+      // 3) Determine grid dimensions dynamically
       const codesPerRow = Math.floor(
-        (pageWidth - 2 * margin) / (qrSize + spacing)
+        (pageWidth - 2 * margin + spacing) / (cellWidth + spacing)
       );
       const codesPerColumn = Math.floor(
         (pageHeight - 2 * margin) / (qrSize + spacing + 15)
-      ); // +15 for text
+      ); // 15mm reserved for text
       const codesPerPage = codesPerRow * codesPerColumn;
 
-      // Add title to first page
+      // — Header on first page —
       pdf.setFontSize(16);
-      const titleText = isRTL
+      const title = isRTL
         ? formatArabicText(t("pdfExporter.title"))
         : t("pdfExporter.title");
-      pdf.text(titleText, pageWidth / 2, 20, { align: "center" });
+      pdf.text(title, pageWidth / 2, 20, { align: "center" });
+
       pdf.setFontSize(10);
-      const headerText = isRTL
-        ? formatArabicText(
-            `${t("common.total")} ${t("common.records")}: ${qrCodes.length}`
-          )
-        : `${t("common.total")} ${t("common.records")}: ${qrCodes.length}`;
-      pdf.text(headerText, pageWidth / 2, 27, { align: "center" });
+      const header = `${t("common.total")} ${t("common.records")}: ${
+        qrCodes.length
+      }`;
+      pdf.text(isRTL ? formatArabicText(header) : header, pageWidth / 2, 27, {
+        align: "center",
+      });
 
+      // 4) Render each QR + its text in the dynamic grid
+      pdf.setFontSize(8);
       for (let i = 0; i < qrCodes.length; i++) {
-        const qrCodeData = qrCodes[i];
+        const qrData = qrCodes[i];
+        const pagePos = i % codesPerPage;
+        const row = Math.floor(pagePos / codesPerRow);
+        const col = pagePos % codesPerRow;
 
-        // Calculate position on current page
-        const pagePosition = i % codesPerPage;
-        const row = Math.floor(pagePosition / codesPerRow);
-        const col = pagePosition % codesPerRow;
+        if (pagePos === 0 && i > 0) pdf.addPage();
 
-        // Check if we need a new page
-        if (i > 0 && pagePosition === 0) {
-          pdf.addPage();
-        }
+        const x = margin + col * (cellWidth + spacing);
+        const y = margin + 35 + row * (qrSize + spacing + 15);
 
-        // Calculate x and y positions
-        const x = margin + col * (qrSize + spacing);
-        const y = margin + 35 + row * (qrSize + spacing + 15); // +35 for header space
+        // Draw QR code
+        pdf.addImage(qrData.qrCode, "PNG", x, y, qrSize, qrSize);
 
-        // Convert data URL to format jsPDF can use
-        const imgData = qrCodeData.qrCode;
-
-        // Add QR code image
-        pdf.addImage(imgData, "PNG", x, y, qrSize, qrSize);
-
-        // Add text below QR code
+        // Draw text under QR, centered in its cell
         let textY = y + qrSize + 5;
-        const hasPageDaftr =
-          "page_no" in qrCodeData.record && "daftr_no" in qrCodeData.record;
-        const hasItemTotal =
-          "item_id" in qrCodeData.record && "item_total" in qrCodeData.record;
-        const hasSpecial = hasPageDaftr || hasItemTotal;
-        pdf.setFontSize(8);
+        const { record } = qrData;
+        const hasPage = "daftr_no" in record && "page_no" in record;
+        const hasItem = "item_id" in record && "item_total" in record;
 
-        if (hasSpecial) {
-          if (hasPageDaftr) {
-            const text = isRTL
-              ? formatArabicText(
-                  `daftr_no/page_no : ${String(
-                    qrCodeData.record.daftr_no
-                  )}/${String(qrCodeData.record.page_no)}`
-                )
-              : `daftr_no/page_no : ${String(
-                  qrCodeData.record.daftr_no
-                )}/${String(qrCodeData.record.page_no)}`;
-            pdf.text(text, x + qrSize / 2, textY, { align: "center" });
-            textY += 5;
-          }
-          if (hasItemTotal) {
-            const text = isRTL
-              ? formatArabicText(
-                  `item_id/item_total : ${String(
-                    qrCodeData.record.item_id
-                  )}/${String(qrCodeData.record.item_total)}`
-                )
-              : `item_id/item_total : ${String(
-                  qrCodeData.record.item_id
-                )}/${String(qrCodeData.record.item_total)}`;
-            pdf.text(text, x + qrSize / 2, textY, { align: "center" });
-            textY += 5;
-          }
-        } else {
-          const recordNumberText = isRTL
-            ? formatArabicText(
-                t("qrGenerator.recordNumber", { number: (i + 1).toString() })
-              )
-            : t("qrGenerator.recordNumber", { number: (i + 1).toString() });
-          pdf.text(recordNumberText, x + qrSize / 2, textY, {
-            align: "center",
+        if (hasPage) {
+          const line = `${t("qrGenerator.daftr_no/page_no")} : ${
+            record.daftr_no
+          }/${record.page_no}`;
+          pdf.text(
+            isRTL ? formatArabicText(line) : line,
+            x + cellWidth / 2,
+            textY,
+            { align: "center" }
+          );
+          textY += 5;
+        }
+        if (hasItem) {
+          const line = `${t("qrGenerator.item_id/item_total")} : ${
+            record.item_id
+          }/${record.item_total}`;
+          pdf.text(
+            isRTL ? formatArabicText(line) : line,
+            x + cellWidth / 2,
+            textY,
+            { align: "center" }
+          );
+          textY += 5;
+        }
+        if (!hasPage && !hasItem) {
+          const recNo = t("qrGenerator.recordNumber", {
+            number: (i + 1).toString(),
           });
-          pdf.setFontSize(6);
-          const recordId =
-            qrCodeData.record.id.length > 20
-              ? qrCodeData.record.id.substring(0, 20) + "..."
-              : qrCodeData.record.id;
-          const recordIdText = isRTL ? formatArabicText(recordId) : recordId;
-          pdf.text(recordIdText, x + qrSize / 2, textY + 5, {
-            align: "center",
-          });
+          pdf.text(
+            isRTL ? formatArabicText(recNo) : recNo,
+            x + cellWidth / 2,
+            textY,
+            { align: "center" }
+          );
+          textY += 5;
+          const rid =
+            record.id.length > 20
+              ? record.id.substring(0, 20) + "..."
+              : record.id;
+          pdf.text(
+            isRTL ? formatArabicText(rid) : rid,
+            x + cellWidth / 2,
+            textY,
+            { align: "center" }
+          );
         }
       }
 
-      // Add footer to all pages
+      // 5) Footer on every page
       const totalPages = pdf.internal.getNumberOfPages();
-      for (let i = 1; i <= totalPages; i++) {
-        pdf.setPage(i);
+      const now = new Date();
+      const dateStr = `${now.getDate().toString().padStart(2, "0")}/${(
+        now.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}/${now.getFullYear()}`;
+
+      for (let p = 1; p <= totalPages; p++) {
+        pdf.setPage(p);
         pdf.setFontSize(8);
-        const pageText = isRTL
-          ? formatArabicText(
-              `${t("common.page")} ${i} ${t("common.of")} ${totalPages}`
-            )
-          : `${t("common.page")} ${i} ${t("common.of")} ${totalPages}`;
-        pdf.text(pageText, pageWidth / 2, pageHeight - 10, { align: "center" });
-        const generatedOnText = isRTL
-          ? formatArabicText(
-              `${t("common.generatedOn")} ${formattedDate}`
-            )
-          : `${t("common.generatedOn")} ${formattedDate}`;
-        pdf.text(generatedOnText, pageWidth - 10, pageHeight - 10, {
-          align: "right",
-        });
+
+        const pageText = `${t("common.page")} ${p} ${t(
+          "common.of"
+        )} ${totalPages}`;
+        pdf.text(
+          isRTL ? formatArabicText(pageText) : pageText,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: "center" }
+        );
+
+        const genText = `${t("common.generatedOn")} ${dateStr}`;
+        pdf.text(
+          isRTL ? formatArabicText(genText) : genText,
+          pageWidth - margin,
+          pageHeight - 10,
+          { align: "right" }
+        );
       }
 
-      // Save the PDF
+      // Save file
       const filename = t("pdfExporter.filename", {
-        date: new Date().toISOString().split("T")[0],
+        date: now.toISOString().split("T")[0],
       });
       pdf.save(filename);
     } catch (error) {
@@ -205,18 +243,10 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
               <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Download className="w-8 h-8 text-orange-600" />
               </div>
-              <h4
-                className={`text-lg font-semibold text-gray-800 mb-2 ${
-                  isRTL ? "text-center" : "text-center"
-                }`}
-              >
+              <h4 className="text-lg font-semibold text-gray-800 mb-2 text-center">
                 {t("pdfExporter.subtitle")}
               </h4>
-              <p
-                className={`text-gray-600 ${
-                  isRTL ? "text-center" : "text-center"
-                }`}
-              >
+              <p className="text-gray-600 text-center">
                 {t("pdfExporter.description", {
                   count: qrCodes.length.toString(),
                 })}
@@ -226,11 +256,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="text-center">
-                  <p
-                    className={`font-medium text-gray-700 ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <p className="font-medium text-gray-700 text-center">
                     {t("pdfExporter.stats.totalQRCodes")}
                   </p>
                   <p className="text-2xl font-bold text-orange-600">
@@ -238,34 +264,18 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
                   </p>
                 </div>
                 <div className="text-center">
-                  <p
-                    className={`font-medium text-gray-700 ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <p className="font-medium text-gray-700 text-center">
                     {t("pdfExporter.stats.format")}
                   </p>
-                  <p
-                    className={`text-lg font-semibold text-gray-800 ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <p className="text-lg font-semibold text-gray-800 text-center">
                     {t("pdfExporter.stats.formatValue")}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p
-                    className={`font-medium text-gray-700 ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <p className="font-medium text-gray-700 text-center">
                     {t("pdfExporter.stats.quality")}
                   </p>
-                  <p
-                    className={`text-lg font-semibold text-gray-800 ${
-                      isRTL ? "text-center" : "text-center"
-                    }`}
-                  >
+                  <p className="text-lg font-semibold text-gray-800 text-center">
                     {t("pdfExporter.stats.qualityValue")}
                   </p>
                 </div>
