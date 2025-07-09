@@ -241,15 +241,14 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                                 .join(", ")}
                             </p>
                           </>
-                        )}
+                          )}
                       </div>
                     </div>
                   );
                 })}
               </div>
 
-              {qrCodes.length > pageSize && (
-                <div
+               <div
                   className={`mt-6 flex items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
                 >
                   <div className="flex items-center gap-2">
@@ -304,7 +303,6 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                     </button>
                   </div>
                 </div>
-              )}
             </>
           )}
 
