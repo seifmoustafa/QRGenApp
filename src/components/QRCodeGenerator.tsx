@@ -216,13 +216,17 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                             {hasPage && (
                               <p className="text-xs text-gray-500 text-center">
                                 {t("qrGenerator.daftr_no/page_no")}:{" "}
-                                {record.daftr_no}/{record.page_no}
+                                <span dir="ltr">
+                                  {record.daftr_no}/{record.page_no}
+                                </span>
                               </p>
                             )}
                             {hasItem && (
                               <p className="text-xs text-gray-500 text-center">
                                 {t("qrGenerator.item_id/item_total")}:{" "}
-                                {record.item_id}/{record.item_total}
+                                <span dir="ltr">
+                                  {record.item_id}/{record.item_total}
+                                </span>
                               </p>
                             )}
                           </>

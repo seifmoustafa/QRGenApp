@@ -7,6 +7,7 @@ import { Download, FileText, Loader2 } from "lucide-react";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 import { formatArabicText } from "../utils/formatArabicText";
+import { forceLTR } from "../utils/forceLTR";
 
 interface PDFExporterProps {
   qrCodes: QRCodeData[];
@@ -47,16 +48,16 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         const lines: string[] = [];
         if (hasPage) {
           lines.push(
-            `${t("qrGenerator.daftr_no/page_no")} : ${record.daftr_no}/${
-              record.page_no
-            }`
+            `${t("qrGenerator.daftr_no/page_no")} : ${forceLTR(
+              `${record.daftr_no}/${record.page_no}`
+            )}`
           );
         }
         if (hasItem) {
           lines.push(
-            `${t("qrGenerator.item_id/item_total")} : ${record.item_id}/${
-              record.item_total
-            }`
+            `${t("qrGenerator.item_id/item_total")} : ${forceLTR(
+              `${record.item_id}/${record.item_total}`
+            )}`
           );
         }
         if (!hasPage && !hasItem) {
@@ -137,9 +138,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         const hasItem = "item_id" in record && "item_total" in record;
 
         if (hasPage) {
-          const line = `${t("qrGenerator.daftr_no/page_no")} : ${
-            record.daftr_no
-          }/${record.page_no}`;
+          const line = `${t("qrGenerator.daftr_no/page_no")} : ${forceLTR(
+            `${record.daftr_no}/${record.page_no}`
+          )}`;
           pdf.text(
             isRTL ? formatArabicText(line) : line,
             x + cellWidth / 2,
@@ -149,9 +150,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
           textY += 5;
         }
         if (hasItem) {
-          const line = `${t("qrGenerator.item_id/item_total")} : ${
-            record.item_id
-          }/${record.item_total}`;
+          const line = `${t("qrGenerator.item_id/item_total")} : ${forceLTR(
+            `${record.item_id}/${record.item_total}`
+          )}`;
           pdf.text(
             isRTL ? formatArabicText(line) : line,
             x + cellWidth / 2,
