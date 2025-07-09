@@ -4,11 +4,16 @@ import { ExcelRecord, QRCodeData } from "../types";
 import { QrCode, Loader2 } from "lucide-react";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
-
+import { formatPair } from "../utils/formatPair";
 interface QRCodeGeneratorProps {
   data: ExcelRecord[];
   onQRCodesGenerated: (qrCodes: QRCodeData[]) => void;
 }
+
+/**
+ * Renders "label: a/b" in LTR, or "label: b/a" in RTL
+ * so that `a` ends up on the right side of the slash.
+ */
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   data,
@@ -16,6 +21,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -23,8 +29,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   const [isComplete, setIsComplete] = useState(false);
   const [pageSize, setPageSize] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(qrCodes.length / pageSize) || 1;
 
+  const totalPages = Math.ceil(qrCodes.length / pageSize) || 1;
   const generationStartedRef = useRef<string>("");
   const dataHashRef = useRef<string>("");
 
@@ -62,39 +68,40 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
         }
 
         const batch = records.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (record) => {
-          try {
-            const qrDataString = Object.keys(record)
-              .filter((key) => key !== "id")
-              .map((key) => `${key}: ${record[key]}`)
-              .join("\n");
+        const batchResults = await Promise.all(
+          batch.map(async (record) => {
+            try {
+              const qrDataString = Object.keys(record)
+                .filter((key) => key !== "id")
+                .map((key) => `${key}: ${record[key]}`)
+                .join("\n");
 
-            const qrCodeDataUrl = await QRCode.toDataURL(qrDataString, {
-              errorCorrectionLevel: "M",
-              type: "image/png",
-              quality: 0.92,
-              margin: 1,
-              color: { dark: "#000000", light: "#FFFFFF" },
-              width: 256,
-            });
+              const qrCodeDataUrl = await QRCode.toDataURL(qrDataString, {
+                errorCorrectionLevel: "M",
+                type: "image/png",
+                quality: 0.92,
+                margin: 1,
+                color: { dark: "#000000", light: "#FFFFFF" },
+                width: 256,
+              });
 
-            return {
-              id: record.id,
-              data: qrDataString,
-              qrCode: qrCodeDataUrl,
-              record,
-            } as QRCodeData;
-          } catch (error) {
-            console.error(
-              "Error generating QR code for record:",
-              record.id,
-              error
-            );
-            return null;
-          }
-        });
+              return {
+                id: record.id,
+                data: qrDataString,
+                qrCode: qrCodeDataUrl,
+                record,
+              } as QRCodeData;
+            } catch (error) {
+              console.error(
+                "Error generating QR code for record:",
+                record.id,
+                error
+              );
+              return null;
+            }
+          })
+        );
 
-        const batchResults = await Promise.all(batchPromises);
         batchResults.forEach((r) => r && codes.push(r));
 
         const completed = Math.min(i + batchSize, records.length);
@@ -192,117 +199,145 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                 {qrCodes
                   .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                   .map((qrCodeData, index) => {
-                  const { record } = qrCodeData;
-                  const hasPage = "daftr_no" in record && "page_no" in record;
-                  const hasItem = "item_id" in record && "item_total" in record;
+                    const { record } = qrCodeData;
+                    const hasPage = "daftr_no" in record && "page_no" in record;
+                    const hasItem =
+                      "item_id" in record && "item_total" in record;
 
-                  return (
-                    <div
-                      key={qrCodeData.id}
-                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200"
-                    >
-                      <div className="text-center">
-                        <div className="w-full h-48 flex items-center justify-center mb-3">
-                          <img
-                            src={qrCodeData.qrCode}
-                            alt={`QR Code ${index + 1 + (currentPage - 1) * pageSize}`}
-                            className="max-w-full max-h-full object-contain rounded-lg"
-                            style={{ imageRendering: "pixelated" }}
-                          />
-                        </div>
+                    return (
+                      <div
+                        key={qrCodeData.id}
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                      >
+                        <div className="text-center">
+                          <div className="w-full h-48 flex items-center justify-center mb-3">
+                            <img
+                              src={qrCodeData.qrCode}
+                              alt={`QR Code ${
+                                index + 1 + (currentPage - 1) * pageSize
+                              }`}
+                              className="max-w-full max-h-full object-contain rounded-lg"
+                              style={{ imageRendering: "pixelated" }}
+                            />
+                          </div>
 
-                        {hasPage || hasItem ? (
-                          <>
-                            {hasPage && (
-                              <p className="text-xs text-gray-500 text-center">
-                                {t("qrGenerator.daftr_no/page_no")}:{" "}
-                                {record.daftr_no}/{record.page_no}
-                              </p>
-                            )}
-                            {hasItem && (
-                              <p className="text-xs text-gray-500 text-center">
-                                {t("qrGenerator.item_id/item_total")}:{" "}
-                                {record.item_id}/{record.item_total}
-                              </p>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <p className="text-sm font-medium text-gray-700 mb-1 text-center">
-                              {t("qrGenerator.recordNumber", {
-                                number: (index + 1 + (currentPage - 1) * pageSize).toString(),
-                              })}
+                          {/* flipped pairs here */}
+                          {hasPage && (
+                            <p className="text-xs text-gray-500 text-center">
+                              {formatPair(
+                                t("qrGenerator.daftr_no/page_no"),
+                                record.daftr_no,
+                                record.page_no,
+                                isRTL
+                              )}
                             </p>
-                            <p className="text-xs text-gray-500 truncate text-center">
-                              {Object.keys(record)
-                                .filter((key) => key !== "id")
-                                .slice(0, 2)
-                                .map((key) => `${key}: ${record[key]}`)
-                                .join(", ")}
-                            </p>
-                          </>
                           )}
+                          {hasItem && (
+                            <p className="text-xs text-gray-500 text-center">
+                              {formatPair(
+                                t("qrGenerator.item_id/item_total"),
+                                record.item_id,
+                                record.item_total,
+                                isRTL
+                              )}
+                            </p>
+                          )}
+
+                          {!hasPage && !hasItem && (
+                            <>
+                              <p className="text-sm font-medium text-gray-700 mb-1 text-center">
+                                {t("qrGenerator.recordNumber", {
+                                  number: (
+                                    index +
+                                    1 +
+                                    (currentPage - 1) * pageSize
+                                  ).toString(),
+                                })}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate text-center">
+                                {Object.keys(record)
+                                  .filter((key) => key !== "id")
+                                  .slice(0, 2)
+                                  .map((key) => `${key}: ${record[key]}`)
+                                  .join(", ")}
+                              </p>
+                            </>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
 
-               <div
-                  className={`mt-6 flex items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <label htmlFor="qr-page-size" className="text-sm text-gray-700">
-                      {t('dataTable.pageSize')}:
-                    </label>
-                    <select
-                      id="qr-page-size"
-                      value={pageSize}
-                      onChange={(e) => {
-                        setPageSize(parseInt(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                      className="border-gray-300 rounded p-1 text-sm"
-                    >
-                      {[12, 24, 48, 96].map((size) => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
-                    >
-                      &lt;
-                    </button>
-                    <input
-                      type="number"
-                      min={1}
-                      max={totalPages}
-                      value={currentPage}
-                      onChange={(e) => {
-                        const val = Math.max(1, Math.min(Number(e.target.value), totalPages));
-                        setCurrentPage(val);
-                      }}
-                      className="w-16 border-gray-300 rounded p-1 text-center text-sm"
-                    />
-                    <span className="text-sm text-gray-700">
-                      {t('common.of')} {totalPages}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
-                    >
-                      &gt;
-                    </button>
-                  </div>
+              <div
+                className={`mt-6 flex items-center justify-between gap-4 ${
+                  isRTL ? "flex-row-reverse" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="qr-page-size"
+                    className="text-sm text-gray-700"
+                  >
+                    {t("dataTable.pageSize")}:
+                  </label>
+                  <select
+                    id="qr-page-size"
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(parseInt(e.target.value, 10));
+                      setCurrentPage(1);
+                    }}
+                    className="border-gray-300 rounded p-1 text-sm"
+                  >
+                    {[12, 24, 48, 96].map((size) => (
+                      <option key={size} value={size}>
+                        {size}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
+                <div
+                  className={`flex items-center gap-2 ${
+                    isRTL ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                  >
+                    &lt;
+                  </button>
+                  <input
+                    type="number"
+                    min={1}
+                    max={totalPages}
+                    value={currentPage}
+                    onChange={(e) => {
+                      const val = Math.max(
+                        1,
+                        Math.min(Number(e.target.value), totalPages)
+                      );
+                      setCurrentPage(val);
+                    }}
+                    className="w-16 border-gray-300 rounded p-1 text-center text-sm"
+                  />
+                  <span className="text-sm text-gray-700">
+                    {t("common.of")} {totalPages}
+                  </span>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              </div>
             </>
           )}
 
