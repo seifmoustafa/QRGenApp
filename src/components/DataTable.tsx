@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ExcelRecord } from '../types';
 import { Table, Eye } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
@@ -12,6 +12,10 @@ interface DataTableProps {
 const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
+
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(data.length / pageSize);
 
   if (data.length === 0) return null;
 
@@ -60,13 +64,15 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
                 </tr>
               </thead>
               <tbody>
-                {data.slice(0, 10).map((record, index) => (
+                {data
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map((record, index) => (
                   <tr
                     key={record.id}
                     className={`border-b border-gray-100 hover:bg-gray-50 transition-colors`}
                   >
                     <td className={`py-3 px-4 text-sm text-gray-600 ${isRTL ? 'text-right' : 'text-left'}`}>
-                      {index + 1}
+                      {index + 1 + (currentPage - 1) * pageSize}
                     </td>
                     {allKeys.map((key) => (
                       <td key={key} className={`py-3 px-4 text-sm text-gray-900 ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -79,9 +85,71 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
             </table>
           </div>
           
-          {data.length > 10 && (
+          {data.length > pageSize && (
             <div className={`mt-4 text-center text-sm text-gray-500`}>
-              {t('dataTable.showingFirst', { count: '10', total: data.length.toString() })}
+              {t('dataTable.showingRange', {
+                start: ((currentPage - 1) * pageSize + 1).toString(),
+                end: Math.min(currentPage * pageSize, data.length).toString(),
+                total: data.length.toString(),
+              })}
+            </div>
+          )}
+
+          {data.length > pageSize && (
+            <div
+              className={`mt-4 flex items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              <div className="flex items-center gap-2">
+                <label htmlFor="pageSize" className="text-sm text-gray-700">
+                  {t('dataTable.pageSize')}:
+                </label>
+                <select
+                  id="pageSize"
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="border-gray-300 rounded p-1 text-sm"
+                >
+                  {[10, 25, 50, 100].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                >
+                  &lt;
+                </button>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const val = Math.max(1, Math.min(Number(e.target.value), totalPages));
+                    setCurrentPage(val);
+                  }}
+                  className="w-16 border-gray-300 rounded p-1 text-center text-sm"
+                />
+                <span className="text-sm text-gray-700">
+                  {t('common.of')} {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                >
+                  &gt;
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -89,5 +157,4 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
     </div>
   );
 };
-
 export default DataTable;

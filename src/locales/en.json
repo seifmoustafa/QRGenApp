@@ -67,7 +67,8 @@
   "dataTable": {
     "title": "Uploaded Data Preview",
     "previewQRCodes": "Preview & Generate QR Codes",
-    "showingFirst": "Showing first {{count}} records of {{total}} total records"
+    "showingRange": "Showing records {{start}}-{{end}} of {{total}}",
+    "pageSize": "Page Size"
   },
   "qrGenerator": {
     "title": "Advanced QR Code Generator",
