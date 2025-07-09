@@ -85,76 +85,71 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
             </table>
           </div>
           
-          {data.length > pageSize && (
-            <div className={`mt-4 text-center text-sm text-gray-500`}>
+        </div>
+          <div
+            className={`mt-4 flex flex-wrap items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+          >
+            <div className="text-sm text-gray-500">
               {t('dataTable.showingRange', {
                 start: ((currentPage - 1) * pageSize + 1).toString(),
                 end: Math.min(currentPage * pageSize, data.length).toString(),
                 total: data.length.toString(),
               })}
             </div>
-          )}
 
-          {data.length > pageSize && (
-            <div
-              className={`mt-4 flex items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
-            >
-              <div className="flex items-center gap-2">
-                <label htmlFor="pageSize" className="text-sm text-gray-700">
-                  {t('dataTable.pageSize')}:
-                </label>
-                <select
-                  id="pageSize"
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(parseInt(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="border-gray-300 rounded p-1 text-sm"
-                >
-                  {[10, 25, 50, 100].map((size) => (
-                    <option key={size} value={size}>
-                      {size}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <button
-                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
-                >
-                  &lt;
-                </button>
-                <input
-                  type="number"
-                  min={1}
-                  max={totalPages}
-                  value={currentPage}
-                  onChange={(e) => {
-                    const val = Math.max(1, Math.min(Number(e.target.value), totalPages));
-                    setCurrentPage(val);
-                  }}
-                  className="w-16 border-gray-300 rounded p-1 text-center text-sm"
-                />
-                <span className="text-sm text-gray-700">
-                  {t('common.of')} {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
-                >
-                  &gt;
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="pageSize" className="text-sm text-gray-700">
+                {t('dataTable.pageSize')}:
+              </label>
+              <select
+                id="pageSize"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(parseInt(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="border-gray-300 rounded p-1 text-sm"
+              >
+                {[10, 25, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-        </div>
+
+            <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              <input
+                type="number"
+                min={1}
+                max={totalPages}
+                value={currentPage}
+                onChange={(e) => {
+                  const val = Math.max(1, Math.min(Number(e.target.value), totalPages));
+                  setCurrentPage(val);
+                }}
+                className="w-16 border-gray-300 rounded p-1 text-center text-sm"
+              />
+              <span className="text-sm text-gray-700">
+                {t('common.of')} {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
       </div>
     </div>
   );
-};
-export default DataTable;
+};export default DataTable;
