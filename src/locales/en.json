@@ -89,6 +89,7 @@
     "item_id/item_total": "Item ID / Item Total"
   },
   "pdfExporter": {
+    "totalRecords": "Total Records",
     "title": "Advanced PDF Export",
     "subtitle": "Export QR Codes as Professional PDF",
     "description": "Download all {{count}} QR codes in a high-quality, printable PDF format",

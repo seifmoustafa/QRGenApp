@@ -89,6 +89,7 @@
     "item_id/item_total": "رقم الصنف / إجمالي الصنف"
   },
   "pdfExporter": {
+    "totalRecords": "إجمالي السجلات",
     "title": "تصدير PDF المتقدم",
     "subtitle": "تصدير رموز QR كملف PDF احترافي",
     "description": "حمل جميع رموز QR الـ {{count}} بتنسيق PDF عالي الجودة وقابل للطباعة",

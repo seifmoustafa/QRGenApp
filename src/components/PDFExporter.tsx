@@ -107,7 +107,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       pdf.text(title, pageWidth / 2, 20, { align: "center" });
 
       pdf.setFontSize(10);
-      const header = `${t("common.total")} ${t("common.records")}: ${
+      const header = `${t("pdfExporter.totalRecords")}: ${
         qrCodes.length
       }`;
       pdf.text(isRTL ? formatArabicText(header) : header, pageWidth / 2, 27, {
