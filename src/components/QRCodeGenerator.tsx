@@ -21,6 +21,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   const [progress, setProgress] = useState(0);
   const [currentRecord, setCurrentRecord] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [pageSize, setPageSize] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(qrCodes.length / pageSize) || 1;
 
   const generationStartedRef = useRef<string>("");
   const dataHashRef = useRef<string>("");
@@ -40,6 +43,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     }
 
     setQrCodes([]);
+    setCurrentPage(1);
     setLoading(true);
     setProgress(0);
     setCurrentRecord(0);
@@ -109,6 +113,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
         const codes = await generateQRCodesBatched(data);
         if (createDataHash(data) === currentDataHash) {
           setQrCodes(codes);
+          setCurrentPage(1);
           setIsComplete(true);
           onQRCodesGenerated(codes);
         }
@@ -184,7 +189,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {qrCodes.map((qrCodeData, index) => {
+                {qrCodes
+                  .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  .map((qrCodeData, index) => {
                   const { record } = qrCodeData;
                   const hasPage = "daftr_no" in record && "page_no" in record;
                   const hasItem = "item_id" in record && "item_total" in record;
@@ -198,7 +205,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                         <div className="w-full h-48 flex items-center justify-center mb-3">
                           <img
                             src={qrCodeData.qrCode}
-                            alt={`QR Code ${index + 1}`}
+                            alt={`QR Code ${index + 1 + (currentPage - 1) * pageSize}`}
                             className="max-w-full max-h-full object-contain rounded-lg"
                             style={{ imageRendering: "pixelated" }}
                           />
@@ -223,7 +230,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                           <>
                             <p className="text-sm font-medium text-gray-700 mb-1 text-center">
                               {t("qrGenerator.recordNumber", {
-                                number: (index + 1).toString(),
+                                number: (index + 1 + (currentPage - 1) * pageSize).toString(),
                               })}
                             </p>
                             <p className="text-xs text-gray-500 truncate text-center">
@@ -240,6 +247,64 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                   );
                 })}
               </div>
+
+              {qrCodes.length > pageSize && (
+                <div
+                  className={`mt-6 flex items-center justify-between gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="qr-page-size" className="text-sm text-gray-700">
+                      {t('dataTable.pageSize')}:
+                    </label>
+                    <select
+                      id="qr-page-size"
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(parseInt(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="border-gray-300 rounded p-1 text-sm"
+                    >
+                      {[12, 24, 48, 96].map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                    >
+                      &lt;
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      max={totalPages}
+                      value={currentPage}
+                      onChange={(e) => {
+                        const val = Math.max(1, Math.min(Number(e.target.value), totalPages));
+                        setCurrentPage(val);
+                      }}
+                      className="w-16 border-gray-300 rounded p-1 text-center text-sm"
+                    />
+                    <span className="text-sm text-gray-700">
+                      {t('common.of')} {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-2 py-1 bg-gray-100 rounded disabled:opacity-50"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
