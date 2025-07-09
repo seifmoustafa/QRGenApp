@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import fontData from '../fonts/NotoSansArabic';
-import bidiFactory from 'bidi-js';
-import reshaper from 'arabic-persian-reshaper';
+
 import { QRCodeData } from '../types';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
@@ -17,16 +16,6 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
   const [exporting, setExporting] = useState(false);
-  const bidi = bidiFactory();
-  // `arabic-persian-reshaper` exports CommonJS modules
-  const { ArabicShaper } = reshaper as unknown as { ArabicShaper: { convertArabic: (s: string) => string } };
-
-  const prepareText = (text: string) => {
-    if (!isRTL) return text;
-    const shaped = ArabicShaper.convertArabic(text);
-    const embeddings = bidi.getEmbeddingLevels(shaped, 'rtl');
-    return bidi.getReorderedString(shaped, embeddings);
-  };
 
   const exportToPDF = async () => {
     if (qrCodes.length === 0) return;
@@ -39,9 +28,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       pdf.addFileToVFS('NotoSansArabic.ttf', fontData);
       pdf.addFont('NotoSansArabic.ttf', 'NotoSansArabic', 'normal');
       pdf.setFont('NotoSansArabic');
-      if (isRTL) {
-        pdf.setR2L(true);
-      }
+      // Avoid jsPDF's built-in RTL handling because it reverses Latin text.
+      // We already format Arabic segments ourselves so English words should
+      // remain in the proper order.
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
