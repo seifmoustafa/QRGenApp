@@ -5,28 +5,28 @@
 /* Local font declarations */
 @font-face {
   font-family: "Cairo";
-  src: url("/fonts/Cairo-Light.tff") format("truetype");
+  src: url("/public/fonts/Cairo-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Cairo";
-  src: url("/fonts/Cairo-Regular.tff") format("truetype");
+  src: url("/public/fonts/Cairo-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Cairo";
-  src: url("/fonts/Cairo-Medium.tff") format("truetype");
+  src: url("/public/fonts/Cairo-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Cairo";
-  src: url("/fonts/Cairo-SemiBold.tff") format("truetype");
+  src: url("/public/fonts/Cairo-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -41,35 +41,35 @@
 
 @font-face {
   font-family: "Roboto";
-  src: url("public/fonts/Roboto-Light.ttf") format("truetype");
+  src: url("/public/fonts/Roboto-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Roboto";
-  src: url("public/fonts/Roboto-Regular.ttf") format("truetype");
+  src: url("/public/fonts/Roboto-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Roboto";
-  src: url("public/fonts/Roboto-Medium.ttf") format("truetype");
+  src: url("/public/fonts/Roboto-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Roboto";
-  src: url("public/fonts/Roboto-SemiBold.ttf") format("truetype");
+  src: url("/public/fonts/Roboto-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Roboto";
-  src: url("public/fonts/Roboto-Bold.ttf") format("truetype");
+  src: url("/public/fonts/Roboto-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
