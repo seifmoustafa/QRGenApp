@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ExcelRecord } from "../types";
 import { Table, Eye, Download } from "lucide-react";
+import { EXCEL_ROW_LIMIT } from "../utils/excelConstants";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 import * as XLSX from "xlsx";
@@ -62,10 +63,27 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
                     delete copy.id;
                     return copy;
                   });
-                  const wb = XLSX.utils.book_new();
-                  const ws = XLSX.utils.json_to_sheet(rows);
-                  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                  XLSX.writeFile(wb, "expanded.xlsx");
+
+                  if (rows.length > EXCEL_ROW_LIMIT) {
+                    alert(
+                      t("uploader.errors.rowLimitExceeded", {
+                        maxRows: EXCEL_ROW_LIMIT.toLocaleString(),
+                      })
+                    );
+                  }
+
+                  for (
+                    let i = 0, part = 1;
+                    i < rows.length;
+                    i += EXCEL_ROW_LIMIT, part++
+                  ) {
+                    const chunk = rows.slice(i, i + EXCEL_ROW_LIMIT);
+                    const wb = XLSX.utils.book_new();
+                    const ws = XLSX.utils.json_to_sheet(chunk);
+                    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                    const suffix = rows.length > EXCEL_ROW_LIMIT ? `_part${part}` : "";
+                    XLSX.writeFile(wb, `expanded${suffix}.xlsx`);
+                  }
                 }}
                 className={`bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                   isRTL ? "flex-row-reverse" : ""

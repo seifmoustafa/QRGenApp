@@ -66,10 +66,10 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             if (!groups.has(key)) {
               groups.set(key, []);
             }
-            groups.get(key)!.push(rec);
-          });
+          groups.get(key)!.push(rec);
+        });
 
-          const expanded: ExcelRecord[] = [];
+        const expanded: ExcelRecord[] = [];
 
           groups.forEach((records) => {
             const base = records[0];

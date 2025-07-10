@@ -61,7 +61,8 @@
     "errors": {
       "invalidFileType": "Please upload a valid Excel file (.xlsx, .xls) or CSV file (.csv)",
       "emptyFile": "The uploaded file appears to be empty or contains no data",
-      "readError": "Error reading the file. Please ensure it's a valid Excel or CSV file and not corrupted."
+      "readError": "Error reading the file. Please ensure it's a valid Excel or CSV file and not corrupted.",
+      "rowLimitExceeded": "Expanded data exceeds Excel's row limit of {{maxRows}}. The download will be split into multiple files."
     }
   },
   "dataTable": {
