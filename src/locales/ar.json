@@ -68,7 +68,8 @@
     "title": "معاينة البيانات المرفوعة",
     "previewQRCodes": "معاينة وإنشاء رموز QR",
     "showingRange": "عرض السجلات {{start}}-{{end}} من إجمالي {{total}} سجل",
-    "pageSize": "عدد السجلات لكل صفحة"
+    "pageSize": "عدد السجلات لكل صفحة",
+    "downloadExcel": "تنزيل ملف إكسل موسع"
   },
   "qrGenerator": {
     "title": "مولد رموز QR المتقدم",
@@ -86,7 +87,7 @@
     "daftrNo": "رقم التسجيل",
     "pageNo": "رقم الصفحة",
     "daftr_no/page_no": "رقم الدفتر / رقم الصفحة",
-    "item_id/item_total": "رقم الصنف / إجمالي الصنف"
+    "item_no/item_count": "رقم العنصر / عدد العناصر"
   },
   "pdfExporter": {
     "totalRecords": "إجمالي السجلات",

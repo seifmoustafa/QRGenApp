@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { ExcelRecord } from "../types";
-import { Table, Eye } from "lucide-react";
+import { Table, Eye, Download } from "lucide-react";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
+import * as XLSX from "xlsx";
 
 interface DataTableProps {
   data: ExcelRecord[];
@@ -53,15 +54,37 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
                 {t("dataTable.title")} ({data.length} {t("common.records")})
               </h3>
             </div>
-            <button
-              onClick={onPreview}
-              className={`bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-                isRTL ? "flex-row-reverse" : ""
-              }`}
-            >
-              <Eye className="w-4 h-4" />
-              {t("dataTable.previewQRCodes")}
-            </button>
+            <div className={`flex gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
+              <button
+                onClick={() => {
+                  const rows = data.map((rec) => {
+                    const copy = { ...rec };
+                    delete copy.id;
+                    return copy;
+                  });
+                  const wb = XLSX.utils.book_new();
+                  const ws = XLSX.utils.json_to_sheet(rows);
+                  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                  XLSX.writeFile(wb, "expanded.xlsx");
+                }}
+                className={`bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                  isRTL ? "flex-row-reverse" : ""
+                }`}
+              >
+                <Download className="w-4 h-4" />
+                {t("dataTable.downloadExcel")}
+              </button>
+
+              <button
+                onClick={onPreview}
+                className={`bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                  isRTL ? "flex-row-reverse" : ""
+                }`}
+              >
+                <Eye className="w-4 h-4" />
+                {t("dataTable.previewQRCodes")}
+              </button>
+            </div>
           </div>
         </div>
 

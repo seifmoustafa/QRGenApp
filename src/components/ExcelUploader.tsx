@@ -52,7 +52,19 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             ...record,
           })) as ExcelRecord[];
 
-          onDataLoad(dataWithIds);
+          const expanded = dataWithIds.flatMap((record) => {
+            const count = Number(record.item_count) || 1;
+            const rows: ExcelRecord[] = [];
+            for (let i = 1; i <= count; i++) {
+              rows.push({
+                ...record,
+                item_no: i,
+              });
+            }
+            return rows;
+          });
+
+          onDataLoad(expanded);
           // Clear the file input so the same file can be uploaded again
           event.target.value = "";
         } catch {
