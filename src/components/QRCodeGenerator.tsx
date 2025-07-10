@@ -202,7 +202,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                     const { record } = qrCodeData;
                     const hasPage = "daftr_no" in record && "page_no" in record;
                     const hasItem =
-                      "item_id" in record && "item_total" in record;
+                      "item_no" in record && "item_count" in record;
 
                     return (
                       <div
@@ -235,9 +235,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                           {hasItem && (
                             <p className="text-xs text-gray-500 text-center">
                               {formatPair(
-                                t("qrGenerator.item_id/item_total"),
-                                record.item_id,
-                                record.item_total,
+                                t("qrGenerator.item_no/item_count"),
+                                record.item_no,
+                                record.item_count,
                                 isRTL
                               )}
                             </p>
