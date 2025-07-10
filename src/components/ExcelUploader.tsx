@@ -47,8 +47,9 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             return;
           }
 
+          const timestamp = Date.now();
           const dataWithIds = jsonData.map((record, idx) => ({
-            id: `record_${idx + 1}_${Date.now()}`,
+            id: `record_${timestamp}_${idx + 1}`,
             ...record,
           })) as ExcelRecord[];
 
@@ -58,6 +59,7 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             for (let i = 1; i <= count; i++) {
               rows.push({
                 ...record,
+                id: `${record.id}_${i}`,
                 item_no: i,
               });
             }
