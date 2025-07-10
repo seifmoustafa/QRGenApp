@@ -4,83 +4,83 @@
 
 /* Local font declarations */
 @font-face {
-  font-family: 'Cairo';
-  src: url('/fonts/Cairo-Light.tff') format('truetype');
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Light.tff") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Cairo';
-  src: url('/fonts/Cairo-Regular.tff') format('truetype');
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Regular.tff") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Cairo';
-  src: url('/fonts/Cairo-Medium.tff') format('truetype');
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Medium.tff") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Cairo';
-  src: url('/fonts/Cairo-SemiBold.tff') format('truetype');
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-SemiBold.tff") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Cairo';
-  src: url('/fonts/Cairo-Bold.tff') format('truetype');
+  font-family: "Cairo";
+  src: url("/public/fonts/Cairo-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Light.tff') format('truetype');
+  font-family: "Roboto";
+  src: url("public/fonts/Roboto-Light.ttf") format("truetype");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Regular.tff') format('truetype');
+  font-family: "Roboto";
+  src: url("public/fonts/Roboto-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Medium.tff') format('truetype');
+  font-family: "Roboto";
+  src: url("public/fonts/Roboto-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-SemiBold.tff') format('truetype');
+  font-family: "Roboto";
+  src: url("public/fonts/Roboto-SemiBold.ttf") format("truetype");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Roboto';
-  src: url('/fonts/Roboto-Bold.tff') format('truetype');
+  font-family: "Roboto";
+  src: url("public/fonts/Roboto-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .font-arabic {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
 }
 
 /* RTL Base Styles */
@@ -131,46 +131,146 @@ body {
 }
 
 /* Margin RTL Support */
-[dir="rtl"] .ml-1 { margin-left: 0; margin-right: 0.25rem; }
-[dir="rtl"] .mr-1 { margin-right: 0; margin-left: 0.25rem; }
-[dir="rtl"] .ml-2 { margin-left: 0; margin-right: 0.5rem; }
-[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
-[dir="rtl"] .ml-3 { margin-left: 0; margin-right: 0.75rem; }
-[dir="rtl"] .mr-3 { margin-right: 0; margin-left: 0.75rem; }
-[dir="rtl"] .ml-4 { margin-left: 0; margin-right: 1rem; }
-[dir="rtl"] .mr-4 { margin-right: 0; margin-left: 1rem; }
-[dir="rtl"] .ml-6 { margin-left: 0; margin-right: 1.5rem; }
-[dir="rtl"] .mr-6 { margin-right: 0; margin-left: 1.5rem; }
-[dir="rtl"] .ml-8 { margin-left: 0; margin-right: 2rem; }
-[dir="rtl"] .mr-8 { margin-right: 0; margin-left: 2rem; }
+[dir="rtl"] .ml-1 {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+[dir="rtl"] .mr-1 {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+[dir="rtl"] .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+[dir="rtl"] .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+[dir="rtl"] .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+[dir="rtl"] .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+[dir="rtl"] .ml-6 {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+[dir="rtl"] .mr-6 {
+  margin-right: 0;
+  margin-left: 1.5rem;
+}
+[dir="rtl"] .ml-8 {
+  margin-left: 0;
+  margin-right: 2rem;
+}
+[dir="rtl"] .mr-8 {
+  margin-right: 0;
+  margin-left: 2rem;
+}
 
 /* Padding RTL Support */
-[dir="rtl"] .pl-1 { padding-left: 0; padding-right: 0.25rem; }
-[dir="rtl"] .pr-1 { padding-right: 0; padding-left: 0.25rem; }
-[dir="rtl"] .pl-2 { padding-left: 0; padding-right: 0.5rem; }
-[dir="rtl"] .pr-2 { padding-right: 0; padding-left: 0.5rem; }
-[dir="rtl"] .pl-3 { padding-left: 0; padding-right: 0.75rem; }
-[dir="rtl"] .pr-3 { padding-right: 0; padding-left: 0.75rem; }
-[dir="rtl"] .pl-4 { padding-left: 0; padding-right: 1rem; }
-[dir="rtl"] .pr-4 { padding-right: 0; padding-left: 1rem; }
-[dir="rtl"] .pl-6 { padding-left: 0; padding-right: 1.5rem; }
-[dir="rtl"] .pr-6 { padding-right: 0; padding-left: 1.5rem; }
-[dir="rtl"] .pl-8 { padding-left: 0; padding-right: 2rem; }
-[dir="rtl"] .pr-8 { padding-right: 0; padding-left: 2rem; }
+[dir="rtl"] .pl-1 {
+  padding-left: 0;
+  padding-right: 0.25rem;
+}
+[dir="rtl"] .pr-1 {
+  padding-right: 0;
+  padding-left: 0.25rem;
+}
+[dir="rtl"] .pl-2 {
+  padding-left: 0;
+  padding-right: 0.5rem;
+}
+[dir="rtl"] .pr-2 {
+  padding-right: 0;
+  padding-left: 0.5rem;
+}
+[dir="rtl"] .pl-3 {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+[dir="rtl"] .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+[dir="rtl"] .pl-4 {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+[dir="rtl"] .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+[dir="rtl"] .pl-6 {
+  padding-left: 0;
+  padding-right: 1.5rem;
+}
+[dir="rtl"] .pr-6 {
+  padding-right: 0;
+  padding-left: 1.5rem;
+}
+[dir="rtl"] .pl-8 {
+  padding-left: 0;
+  padding-right: 2rem;
+}
+[dir="rtl"] .pr-8 {
+  padding-right: 0;
+  padding-left: 2rem;
+}
 
 /* Border Radius RTL Support */
-[dir="rtl"] .rounded-l { border-radius: 0 0.25rem 0.25rem 0; }
-[dir="rtl"] .rounded-r { border-radius: 0.25rem 0 0 0.25rem; }
-[dir="rtl"] .rounded-tl { border-top-left-radius: 0; border-top-right-radius: 0.25rem; }
-[dir="rtl"] .rounded-tr { border-top-right-radius: 0; border-top-left-radius: 0.25rem; }
-[dir="rtl"] .rounded-bl { border-bottom-left-radius: 0; border-bottom-right-radius: 0.25rem; }
-[dir="rtl"] .rounded-br { border-bottom-right-radius: 0; border-bottom-left-radius: 0.25rem; }
+[dir="rtl"] .rounded-l {
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+[dir="rtl"] .rounded-r {
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+[dir="rtl"] .rounded-tl {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0.25rem;
+}
+[dir="rtl"] .rounded-tr {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0.25rem;
+}
+[dir="rtl"] .rounded-bl {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0.25rem;
+}
+[dir="rtl"] .rounded-br {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0.25rem;
+}
 
 /* Position RTL Support */
-[dir="rtl"] .left-0 { left: auto; right: 0; }
-[dir="rtl"] .right-0 { right: auto; left: 0; }
-[dir="rtl"] .left-4 { left: auto; right: 1rem; }
-[dir="rtl"] .right-4 { right: auto; left: 1rem; }
+[dir="rtl"] .left-0 {
+  left: auto;
+  right: 0;
+}
+[dir="rtl"] .right-0 {
+  right: auto;
+  left: 0;
+}
+[dir="rtl"] .left-4 {
+  left: auto;
+  right: 1rem;
+}
+[dir="rtl"] .right-4 {
+  right: auto;
+  left: 1rem;
+}
 
 /* Transform RTL Support for Icons */
 [dir="rtl"] .rtl-flip {
