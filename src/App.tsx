@@ -6,7 +6,7 @@ import QRCodeGenerator from './components/QRCodeGenerator';
 import PDFExporter from './components/PDFExporter';
 import ErrorAlert from './components/ErrorAlert';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import { ExcelRecord, QRCodeData } from './types';
+import { QRCodeData, ExpandedData } from './types';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from './hooks/useTranslation';
 import { useLanguage } from './contexts/LanguageContext';
@@ -14,7 +14,7 @@ import { useLanguage } from './contexts/LanguageContext';
 const AppContent: React.FC = () => {
   const { t } = useTranslation();
   const { isRTL, language } = useLanguage();
-  const [excelData, setExcelData] = useState<ExcelRecord[]>([]);
+  const [excelData, setExcelData] = useState<ExpandedData | null>(null);
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
   const [showQRCodes, setShowQRCodes] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const AppContent: React.FC = () => {
     document.title = t('header.title');
   }, [language, t]);
 
-  const handleDataLoad = (data: ExcelRecord[]) => {
+  const handleDataLoad = (data: ExpandedData) => {
     setExcelData(data);
     setShowQRCodes(false);
     setQrCodes([]);
@@ -47,7 +47,7 @@ const AppContent: React.FC = () => {
   };
 
   const handleReset = () => {
-    setExcelData([]);
+    setExcelData(null);
     setQrCodes([]);
     setShowQRCodes(false);
     setError(null);
@@ -74,7 +74,7 @@ const AppContent: React.FC = () => {
             </div>
             <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <LanguageSwitcher />
-              {excelData.length > 0 && (
+              {excelData && excelData.preview.length > 0 && (
                 <button
                   onClick={handleReset}
                   className={`bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors ${isRTL ? 'font-arabic' : ''}`}
@@ -106,7 +106,7 @@ const AppContent: React.FC = () => {
           <ExcelUploader onDataLoad={handleDataLoad} onError={handleError} />
 
           {/* Step 2: Preview Data */}
-          {excelData.length > 0 && (
+          {excelData && excelData.preview.length > 0 && (
             <>
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-4">
@@ -125,7 +125,7 @@ const AppContent: React.FC = () => {
           )}
 
           {/* Step 3: Generate QR Codes */}
-          {showQRCodes && excelData.length > 0 && (
+          {showQRCodes && excelData && excelData.preview.length > 0 && (
             <>
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-4">

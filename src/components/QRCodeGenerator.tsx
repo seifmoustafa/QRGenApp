@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import QRCode from "qrcode";
-import { ExcelRecord, QRCodeData } from "../types";
+import { ExcelRecord, QRCodeData, ExpandedData } from "../types";
 import { QrCode, Loader2 } from "lucide-react";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 import { formatPair } from "../utils/formatPair";
 interface QRCodeGeneratorProps {
-  data: ExcelRecord[];
+  data: ExpandedData;
   onQRCodesGenerated: (qrCodes: QRCodeData[]) => void;
 }
 
@@ -38,9 +38,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     records.map((r) => r.id).join(",");
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (data.preview.length === 0) return;
 
-    const currentDataHash = createDataHash(data);
+      const currentDataHash = createDataHash(data.preview);
     if (
       currentDataHash === dataHashRef.current &&
       generationStartedRef.current === currentDataHash
@@ -63,7 +63,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
       const batchSize = 3;
 
       for (let i = 0; i < records.length; i += batchSize) {
-        if (createDataHash(data) !== currentDataHash) {
+        if (createDataHash(data.preview) !== currentDataHash) {
           return codes;
         }
 
@@ -117,8 +117,8 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
 
     const generateQRCodes = async () => {
       try {
-        const codes = await generateQRCodesBatched(data);
-        if (createDataHash(data) === currentDataHash) {
+        const codes = await generateQRCodesBatched(data.preview);
+        if (createDataHash(data.preview) === currentDataHash) {
           setQrCodes(codes);
           setCurrentPage(1);
           setIsComplete(true);
@@ -127,7 +127,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
       } catch (error) {
         console.error("Error generating QR codes:", error);
       } finally {
-        if (createDataHash(data) === currentDataHash) {
+        if (createDataHash(data.preview) === currentDataHash) {
           setLoading(false);
         }
       }
@@ -136,7 +136,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     generateQRCodes();
   }, [data, onQRCodesGenerated]);
 
-  if (data.length === 0) return null;
+  if (data.preview.length === 0) return null;
 
   return (
     <div
@@ -161,7 +161,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
               <p className="text-gray-600 text-center mb-2">
                 {t("qrGenerator.generating", {
                   current: currentRecord.toString(),
-                  total: data.length.toString(),
+                  total: data.preview.length.toString(),
                 })}
               </p>
               <div className="w-full bg-gray-200 rounded-full h-3 max-w-md mx-auto mb-2">
@@ -189,7 +189,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                       : t("qrGenerator.generatingStatus")}{" "}
                     {t("qrGenerator.qrCodesCount", {
                       generated: qrCodes.length.toString(),
-                      total: data.length.toString(),
+                      total: data.preview.length.toString(),
                     })}
                   </p>
                 </div>
@@ -341,7 +341,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
             </>
           )}
 
-          {!loading && qrCodes.length === 0 && data.length > 0 && (
+          {!loading && qrCodes.length === 0 && data.preview.length > 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 text-center">
                 {t("qrGenerator.noQRCodes")}

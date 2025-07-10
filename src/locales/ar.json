@@ -61,7 +61,8 @@
     "errors": {
       "invalidFileType": "يرجى رفع ملف إكسل صالح (.xlsx، .xls) أو ملف CSV (.csv)",
       "emptyFile": "يبدو أن الملف المرفوع فارغ أو لا يحتوي على بيانات",
-      "readError": "خطأ في قراءة الملف. يرجى التأكد من أنه ملف إكسل أو CSV صالح وغير تالف."
+      "readError": "خطأ في قراءة الملف. يرجى التأكد من أنه ملف إكسل أو CSV صالح وغير تالف.",
+      "rowLimitExceeded": "تتجاوز البيانات الموسعة حد صفوف إكسل البالغ {{maxRows}}. سيتم تقسيم التنزيل إلى عدة ملفات."
     }
   },
   "dataTable": {
@@ -69,7 +70,9 @@
     "previewQRCodes": "معاينة وإنشاء رموز QR",
     "showingRange": "عرض السجلات {{start}}-{{end}} من إجمالي {{total}} سجل",
     "pageSize": "عدد السجلات لكل صفحة",
-    "downloadExcel": "تنزيل ملف إكسل موسع"
+    "downloadExcel": "تنزيل ملف إكسل موسع",
+    "previewTruncated": "يتم عرض أول {{limit}} سجل من أصل {{total}}",
+    "exportingExcel": "جاري إنشاء ملفات إكسل... {{progress}}%"
   },
   "qrGenerator": {
     "title": "مولد رموز QR المتقدم",

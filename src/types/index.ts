@@ -10,3 +10,9 @@ export interface QRCodeData {
   qrCode: string;
   record: ExcelRecord;
 }
+
+export interface ExpandedData {
+  preview: ExcelRecord[];
+  groups: Map<string, ExcelRecord[]>;
+  total: number;
+}

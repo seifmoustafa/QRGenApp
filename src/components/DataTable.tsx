@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { ExcelRecord } from "../types";
+import React, { useState, useCallback } from "react";
+import { ExpandedData, ExcelRecord } from "../types";
 import { Table, Eye, Download } from "lucide-react";
+import { EXCEL_ROW_LIMIT } from "../utils/excelConstants";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 import * as XLSX from "xlsx";
 
 interface DataTableProps {
-  data: ExcelRecord[];
+  data: ExpandedData;
   onPreview: () => void;
 }
 
@@ -16,18 +17,107 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
 
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / pageSize);
+  const totalPages = Math.ceil(data.preview.length / pageSize);
 
-  if (data.length === 0) return null;
+  const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
 
   // Get all unique keys from all records
   const allKeys = Array.from(
     new Set(
-      data.flatMap((record) =>
+      data.preview.flatMap((record) =>
         Object.keys(record).filter((key) => key !== "id")
       )
     )
   );
+
+  const handleDownload = useCallback(async () => {
+    setExporting(true);
+    setExportProgress(0);
+
+    let expandedChunk: ExcelRecord[] = [];
+    let part = 1;
+    let processed = 0;
+
+    const flush = () => {
+      if (expandedChunk.length === 0) return;
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(
+        expandedChunk.map((r) => {
+          const copy = { ...r };
+          delete copy.id;
+          return copy;
+        })
+      );
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+      const suffix = part > 1 ? `_part${part}` : "";
+      XLSX.writeFile(wb, `expanded${suffix}.xlsx`);
+      expandedChunk = [];
+      part += 1;
+    };
+
+    const totalRows = data.total;
+
+    for (const records of data.groups.values()) {
+      const base = records[0];
+      const count = Number(base.item_count) || records.length;
+
+      const used = new Set<number>();
+      const placeholders: ExcelRecord[] = [];
+      const ordered: ExcelRecord[] = [];
+
+      records.forEach((rec) => {
+        const no = Number(rec.item_no);
+        if (
+          Number.isInteger(no) &&
+          no > 0 &&
+          no <= count &&
+          !used.has(no)
+        ) {
+          ordered.push({ ...rec, item_no: no });
+          used.add(no);
+        } else {
+          placeholders.push(rec);
+        }
+      });
+
+      const missing: number[] = [];
+      for (let i = 1; i <= count; i++) {
+        if (!used.has(i)) missing.push(i);
+      }
+
+      placeholders.forEach((rec) => {
+        if (missing.length === 0) return;
+        const no = missing.shift()!;
+        ordered.push({ ...rec, item_no: no });
+        used.add(no);
+      });
+
+      missing.forEach((no) => {
+        ordered.push({ ...base, item_no: no });
+      });
+
+      ordered.sort((a, b) => Number(a.item_no) - Number(b.item_no));
+
+      for (const row of ordered) {
+        expandedChunk.push(row);
+        processed += 1;
+        if (expandedChunk.length >= EXCEL_ROW_LIMIT) {
+          flush();
+        }
+        if (processed % 1000 === 0) {
+          setExportProgress((processed / totalRows) * 100);
+          await new Promise((res) => setTimeout(res, 0));
+        }
+      }
+    }
+
+    flush();
+    setExportProgress(100);
+    setExporting(false);
+  }, [data]);
+
+  if (data.preview.length === 0) return null;
 
   return (
     <div
@@ -51,22 +141,12 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                {t("dataTable.title")} ({data.length} {t("common.records")})
+                {t("dataTable.title")} ({data.total.toLocaleString()} {t("common.records")})
               </h3>
             </div>
             <div className={`flex gap-2 ${isRTL ? "flex-row-reverse" : ""}`}>
               <button
-                onClick={() => {
-                  const rows = data.map((rec) => {
-                    const copy = { ...rec };
-                    delete copy.id;
-                    return copy;
-                  });
-                  const wb = XLSX.utils.book_new();
-                  const ws = XLSX.utils.json_to_sheet(rows);
-                  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                  XLSX.writeFile(wb, "expanded.xlsx");
-                }}
+                onClick={handleDownload}
                 className={`bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                   isRTL ? "flex-row-reverse" : ""
                 }`}
@@ -89,6 +169,21 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
         </div>
 
         <div className="p-6">
+          {data.total > data.preview.length && (
+            <p className="text-sm text-gray-600 mb-2">
+              {t("dataTable.previewTruncated", {
+                limit: data.preview.length.toLocaleString(),
+                total: data.total.toLocaleString(),
+              })}
+            </p>
+          )}
+          {exporting && (
+            <p className="text-sm text-gray-600 mb-2">
+              {t("dataTable.exportingExcel", {
+                progress: Math.round(exportProgress).toString(),
+              })}
+            </p>
+          )}
           <div className="overflow-x-auto">
             <table className={`w-full ${isRTL ? "text-right" : "text-left"}`}>
               <thead>
@@ -109,7 +204,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
                 </tr>
               </thead>
               <tbody>
-                {data
+                {data.preview
                   .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                   .map((record, index) => (
                     <tr
@@ -167,8 +262,8 @@ const DataTable: React.FC<DataTableProps> = ({ data, onPreview }) => {
           <div className="text-sm text-gray-500">
             {t("dataTable.showingRange", {
               start: ((currentPage - 1) * pageSize + 1).toString(),
-              end: Math.min(currentPage * pageSize, data.length).toString(),
-              total: data.length.toString(),
+              end: Math.min(currentPage * pageSize, data.preview.length).toString(),
+              total: data.total.toLocaleString(),
             })}
           </div>
 
