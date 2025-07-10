@@ -17,16 +17,60 @@ try {
   const workbook = XLSX.readFile(inputFile);
   const sheetName = workbook.SheetNames[0];
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+  const groups = new Map();
+
+  // Group rows ignoring the item_no column
+  for (const row of rows) {
+    const key = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(row).filter(([k]) => k !== 'item_no')
+      )
+    );
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(row);
+  }
+
   const expanded = [];
 
-  for (const row of rows) {
-    const count = Number(row.item_count) || 0;
-    for (let i = 1; i <= count; i++) {
-      expanded.push({
-        ...row,
-        item_no: i,
-      });
+  for (const records of groups.values()) {
+    const base = records[0];
+    const count = Number(base.item_count) || records.length;
+
+    const used = new Set();
+    const placeholders = [];
+    const ordered = [];
+
+    for (const record of records) {
+      const no = Number(record.item_no);
+      if (Number.isInteger(no) && no > 0 && no <= count && !used.has(no)) {
+        ordered.push({ ...record, item_no: no });
+        used.add(no);
+      } else {
+        placeholders.push(record);
+      }
     }
+
+    const missing = [];
+    for (let i = 1; i <= count; i++) {
+      if (!used.has(i)) missing.push(i);
+    }
+
+    for (const record of placeholders) {
+      if (missing.length === 0) break;
+      const no = missing.shift();
+      ordered.push({ ...record, item_no: no });
+      used.add(no);
+    }
+
+    for (const no of missing) {
+      ordered.push({ ...base, item_no: no });
+    }
+
+    ordered.sort((a, b) => Number(a.item_no) - Number(b.item_no));
+    expanded.push(...ordered);
   }
 
   const outWb = XLSX.utils.book_new();
