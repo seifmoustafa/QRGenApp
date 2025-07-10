@@ -68,7 +68,8 @@
     "title": "Uploaded Data Preview",
     "previewQRCodes": "Preview & Generate QR Codes",
     "showingRange": "Showing records {{start}}-{{end}} of {{total}}",
-    "pageSize": "Page Size"
+    "pageSize": "Page Size",
+    "downloadExcel": "Download Expanded Excel"
   },
   "qrGenerator": {
     "title": "Advanced QR Code Generator",
@@ -86,7 +87,7 @@
     "daftrNo": "Daftr No",
     "pageNo": "Page No",
     "daftr_no/page_no": "Daftr No / Page No",
-    "item_id/item_total": "Item ID / Item Total"
+    "item_no/item_count": "Item No / Item Count"
   },
   "pdfExporter": {
     "totalRecords": "Total Records",

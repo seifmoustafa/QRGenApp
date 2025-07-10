@@ -47,7 +47,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       const recordWidths = qrCodes.map((qrData, idx) => {
         const { record } = qrData;
         const hasPage = "daftr_no" in record && "page_no" in record;
-        const hasItem = "item_id" in record && "item_total" in record;
+        const hasItem = "item_no" in record && "item_count" in record;
 
         const lines: string[] = [];
         if (hasPage) {
@@ -63,9 +63,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         if (hasItem) {
           lines.push(
             formatPair(
-              t("qrGenerator.item_id/item_total"),
-              record.item_id,
-              record.item_total,
+              t("qrGenerator.item_no/item_count"),
+              record.item_no,
+              record.item_count,
               isRTL
             )
           );
@@ -139,7 +139,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         let textY = y + qrSize + 5;
         const { record } = qrData;
         const hasPage = "daftr_no" in record && "page_no" in record;
-        const hasItem = "item_id" in record && "item_total" in record;
+        const hasItem = "item_no" in record && "item_count" in record;
 
         if (hasPage) {
           const line = formatPair(
@@ -159,9 +159,9 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
 
         if (hasItem) {
           const line = formatPair(
-            t("qrGenerator.item_id/item_total"),
-            record.item_id,
-            record.item_total,
+            t("qrGenerator.item_no/item_count"),
+            record.item_no,
+            record.item_count,
             isRTL
           );
           pdf.text(
