@@ -53,17 +53,66 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             ...record,
           })) as ExcelRecord[];
 
-          const expanded = dataWithIds.flatMap((record) => {
-            const count = Number(record.item_count) || 1;
-            const rows: ExcelRecord[] = [];
-            for (let i = 1; i <= count; i++) {
-              rows.push({
-                ...record,
-                id: `${record.id}_${i}`,
-                item_no: i,
-              });
+          const groups = new Map<string, ExcelRecord[]>();
+
+          dataWithIds.forEach((rec) => {
+            const key = JSON.stringify(
+              Object.fromEntries(
+                Object.entries(rec).filter(
+                  ([k]) => k !== "item_no" && k !== "id"
+                )
+              )
+            );
+            if (!groups.has(key)) {
+              groups.set(key, []);
             }
-            return rows;
+            groups.get(key)!.push(rec);
+          });
+
+          const expanded: ExcelRecord[] = [];
+
+          groups.forEach((records) => {
+            const base = records[0];
+            const count = Number(base.item_count) || records.length;
+
+            const used = new Set<number>();
+            const placeholders: ExcelRecord[] = [];
+            const ordered: ExcelRecord[] = [];
+
+            records.forEach((rec) => {
+              const no = Number(rec.item_no);
+              if (Number.isInteger(no) && no > 0 && no <= count && !used.has(no)) {
+                ordered.push({ ...rec, item_no: no });
+                used.add(no);
+              } else {
+                placeholders.push(rec);
+              }
+            });
+
+            const missing: number[] = [];
+            for (let i = 1; i <= count; i++) {
+              if (!used.has(i)) missing.push(i);
+            }
+
+            placeholders.forEach((rec) => {
+              if (missing.length === 0) return;
+              const no = missing.shift()!;
+              ordered.push({ ...rec, item_no: no });
+              used.add(no);
+            });
+
+            missing.forEach((no) => {
+              ordered.push({ ...base, item_no: no });
+            });
+
+            ordered.sort((a, b) => Number(a.item_no) - Number(b.item_no));
+
+            ordered.forEach((row) => {
+              expanded.push({
+                ...row,
+                id: `${base.id}_${row.item_no}`,
+              });
+            });
           });
 
           onDataLoad(expanded);
