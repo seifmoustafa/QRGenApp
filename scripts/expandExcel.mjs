@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import * as XLSX from 'xlsx';
 
+const EXCEL_ROW_LIMIT = 1_048_576;
+
 const [,, inputFile, outputFileArg] = process.argv;
 if (!inputFile) {
   console.error('Usage: node scripts/expandExcel.mjs <input.xlsx> [output.xlsx]');
@@ -33,7 +35,24 @@ try {
     groups.get(key).push(row);
   }
 
-  const expanded = [];
+  let expandedChunk = [];
+  let part = 1;
+
+  const flushChunk = () => {
+    if (expandedChunk.length === 0) return;
+    const outWb = XLSX.utils.book_new();
+    const outSheet = XLSX.utils.json_to_sheet(expandedChunk);
+    XLSX.utils.book_append_sheet(outWb, outSheet, 'Sheet1');
+    const suffix = part > 1 ? `_part${part}` : '';
+    const baseName = outputFile.replace(/\.xlsx$/i, '');
+    const fileName = part === 1 && !fs.existsSync(outputFile) && suffix === ''
+      ? outputFile
+      : `${baseName}${suffix}.xlsx`;
+    XLSX.writeFile(outWb, fileName);
+    console.log(`Expanded file written to ${fileName}`);
+    expandedChunk = [];
+    part += 1;
+  };
 
   for (const records of groups.values()) {
     const base = records[0];
@@ -70,14 +89,14 @@ try {
     }
 
     ordered.sort((a, b) => Number(a.item_no) - Number(b.item_no));
-    expanded.push(...ordered);
+    for (const row of ordered) {
+      expandedChunk.push(row);
+      if (expandedChunk.length >= EXCEL_ROW_LIMIT) {
+        flushChunk();
+      }
+    }
   }
-
-  const outWb = XLSX.utils.book_new();
-  const outSheet = XLSX.utils.json_to_sheet(expanded);
-  XLSX.utils.book_append_sheet(outWb, outSheet, 'Sheet1');
-  XLSX.writeFile(outWb, outputFile);
-  console.log(`Expanded file written to ${outputFile}`);
+  flushChunk();
 } catch (err) {
   console.error('Failed to process file:', err);
   process.exit(1);

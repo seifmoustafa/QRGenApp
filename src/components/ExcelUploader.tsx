@@ -1,12 +1,13 @@
 import React, { useCallback } from "react";
 import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
 import * as XLSX from "xlsx";
-import { ExcelRecord } from "../types";
+import { ExcelRecord, ExpandedData } from "../types";
+import { PREVIEW_ROW_LIMIT } from "../utils/excelConstants";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 
 interface ExcelUploaderProps {
-  onDataLoad: (data: ExcelRecord[]) => void;
+  onDataLoad: (data: ExpandedData) => void;
   onError: (error: string) => void;
 }
 
@@ -66,10 +67,11 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             if (!groups.has(key)) {
               groups.set(key, []);
             }
-            groups.get(key)!.push(rec);
-          });
+          groups.get(key)!.push(rec);
+        });
 
-          const expanded: ExcelRecord[] = [];
+        const preview: ExcelRecord[] = [];
+        let total = 0;
 
           groups.forEach((records) => {
             const base = records[0];
@@ -108,14 +110,18 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             ordered.sort((a, b) => Number(a.item_no) - Number(b.item_no));
 
             ordered.forEach((row) => {
-              expanded.push({
-                ...row,
-                id: `${base.id}_${row.item_no}`,
-              });
+              if (preview.length < PREVIEW_ROW_LIMIT) {
+                preview.push({
+                  ...row,
+                  id: `${base.id}_${row.item_no}`,
+                });
+              }
             });
+
+            total += count;
           });
 
-          onDataLoad(expanded);
+          onDataLoad({ preview, groups, total });
           // Clear the file input so the same file can be uploaded again
           event.target.value = "";
         } catch {
