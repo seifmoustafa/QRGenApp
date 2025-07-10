@@ -53,17 +53,50 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({
             ...record,
           })) as ExcelRecord[];
 
-          const expanded = dataWithIds.flatMap((record) => {
-            const count = Number(record.item_count) || 1;
-            const rows: ExcelRecord[] = [];
-            for (let i = 1; i <= count; i++) {
-              rows.push({
-                ...record,
-                id: `${record.id}_${i}`,
-                item_no: i,
-              });
+          const groups = new Map<string, ExcelRecord[]>();
+
+          dataWithIds.forEach((rec) => {
+            const key = JSON.stringify(
+              Object.fromEntries(
+                Object.entries(rec).filter(
+                  ([k]) => k !== "item_no" && k !== "id"
+                )
+              )
+            );
+            if (!groups.has(key)) {
+              groups.set(key, []);
             }
-            return rows;
+            groups.get(key)!.push(rec);
+          });
+
+          const expanded: ExcelRecord[] = [];
+
+          groups.forEach((records) => {
+            const base = records[0];
+            const count = Number(base.item_count) || records.length;
+
+            expanded.push(...records);
+
+            if (records.length < count) {
+              const existingNos = records
+                .map((r) => Number(r.item_no))
+                .filter((n) => !Number.isNaN(n));
+
+              const missingNos: number[] = [];
+              for (let i = 1; i <= count; i++) {
+                if (!existingNos.includes(i)) {
+                  missingNos.push(i);
+                }
+              }
+
+              for (const no of missingNos) {
+                expanded.push({
+                  ...base,
+                  id: `${base.id}_${no}`,
+                  item_no: no,
+                });
+              }
+            }
           });
 
           onDataLoad(expanded);

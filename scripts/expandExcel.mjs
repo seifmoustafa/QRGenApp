@@ -17,15 +17,48 @@ try {
   const workbook = XLSX.readFile(inputFile);
   const sheetName = workbook.SheetNames[0];
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  const groups = new Map();
+
+  // Group rows ignoring the item_no column
+  for (const row of rows) {
+    const key = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(row).filter(([k]) => k !== 'item_no')
+      )
+    );
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(row);
+  }
+
   const expanded = [];
 
-  for (const row of rows) {
-    const count = Number(row.item_count) || 0;
-    for (let i = 1; i <= count; i++) {
-      expanded.push({
-        ...row,
-        item_no: i,
-      });
+  for (const records of groups.values()) {
+    const base = records[0];
+    const count = Number(base.item_count) || records.length;
+
+    // Keep existing records as-is
+    expanded.push(...records);
+
+    if (records.length < count) {
+      const existingNos = records
+        .map((r) => Number(r.item_no))
+        .filter((n) => !Number.isNaN(n));
+
+      const missingNos = [];
+      for (let i = 1; i <= count; i++) {
+        if (!existingNos.includes(i)) {
+          missingNos.push(i);
+        }
+      }
+
+      for (const no of missingNos) {
+        expanded.push({
+          ...base,
+          item_no: no,
+        });
+      }
     }
   }
 
