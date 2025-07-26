@@ -22,6 +22,25 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
   const { isRTL } = useLanguage();
   const [exporting, setExporting] = useState(false);
 
+  // QR Size selection logic
+  const [qrSizeMode, setQrSizeMode] = useState<'select' | 'input' | 'slider'>('select');
+  const [qrSizeSelect, setQrSizeSelect] = useState(40); // default Medium
+  const [qrSizeInput, setQrSizeInput] = useState(40);
+  const [qrSizeSlider, setQrSizeSlider] = useState(40);
+
+  // Standard sizes
+  const qrSizeOptions = [
+    { label: t('pdfExporter.qrSize.verySmall') || 'Very Small', value: 20 },
+    { label: t('pdfExporter.qrSize.small') || 'Small', value: 30 },
+    { label: t('pdfExporter.qrSize.medium') || 'Medium', value: 40 },
+    { label: t('pdfExporter.qrSize.large') || 'Large', value: 50 },
+    { label: t('pdfExporter.qrSize.veryLarge') || 'Very Large', value: 60 },
+  ];
+
+  // Unified value for export
+  const qrSize =
+    qrSizeMode === 'select' ? qrSizeSelect : qrSizeMode === 'input' ? qrSizeInput : qrSizeSlider;
+
   const exportToPDF = async () => {
     if (qrCodes.length === 0) return;
     setExporting(true);
@@ -37,13 +56,18 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
       pdf.setFont("NotoSansArabic");
 
       // Layout constants
-      const qrSize = 40;
       const margin = 10;
       const minSpacing = 5;
       const vertSpacing = 5;
 
+      // Font size dynamic based on qrSize
+      const fontSize = Math.max(2, Math.round(qrSize * 0.3));
+      pdf.setFontSize(fontSize);
+      // line height and spacing
+      const lineHeight = Math.round(fontSize * 1.2);
+      const textSpacing = Math.max(2, Math.round(qrSize * 0.15));
+
       // 1) Measure text widths
-      pdf.setFontSize(8);
       const recordWidths = qrCodes.map((qrData, idx) => {
         const { record } = qrData;
         const hasPage = "daftr_no" in record && "page_no" in record;
@@ -86,42 +110,50 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             pdf.getTextWidth(isRTL ? formatArabicText(ln) : ln)
           )
         );
+        // cellWidth must be at least qrSize
         return Math.max(qrSize, maxLine);
       });
 
+      // استغلال المساحة: اجعل الهامش العلوي بعد آخر Y للعنوان + هامش صغير
+      const headerBottomY = 27; // آخر Y تمت كتابة العنوان عنده
+      const safeMarginTop = 12; // هامش علوي صغير
+      const dynamicTopMargin = headerBottomY + safeMarginTop;
+
       // 2) Decide cellWidth
-      const cellWidth = Math.max(...recordWidths);
+      const cellWidth = Math.max(...recordWidths, qrSize);
 
       // 3) Compute grid
       let codesPerRow = Math.floor(
         (pageWidth - 2 * margin + minSpacing) / (cellWidth + minSpacing)
       );
       codesPerRow = Math.max(1, codesPerRow);
-      const horizSpacing =
-        codesPerRow > 1
-          ? (pageWidth - 2 * margin - codesPerRow * cellWidth) /
-            (codesPerRow - 1)
-          : 0;
+      // Center the grid horizontally
+      const totalGridWidth = codesPerRow * cellWidth + (codesPerRow - 1) * minSpacing;
+      const gridStartX = (pageWidth - totalGridWidth) / 2;
+      const horizSpacing = codesPerRow > 1 ? minSpacing : 0;
+      const footerHeight = 10; // ارتفاع الفوتر
+      const safeMarginBottom = 12; // هامش سفلي صغير
+      const bottomMargin = footerHeight + safeMarginBottom;
       const codesPerColumn = Math.floor(
-        (pageHeight - 2 * margin) / (qrSize + vertSpacing + 15)
+        (pageHeight - dynamicTopMargin - bottomMargin) / (qrSize + vertSpacing + lineHeight * 2.2)
       );
       const codesPerPage = codesPerRow * codesPerColumn;
 
       // Header
-      pdf.setFontSize(16);
+      pdf.setFontSize(Math.max(14, fontSize + 6));
       const title = isRTL
         ? formatArabicText(t("pdfExporter.title"))
         : t("pdfExporter.title");
       pdf.text(title, pageWidth / 2, 20, { align: "center" });
 
-      pdf.setFontSize(10);
+      pdf.setFontSize(Math.max(10, fontSize + 2));
       const header = `${t("pdfExporter.totalRecords")}: ${qrCodes.length}`;
       pdf.text(isRTL ? formatArabicText(header) : header, pageWidth / 2, 27, {
         align: "center",
       });
 
       // 4) Draw QR + text
-      pdf.setFontSize(8);
+      pdf.setFontSize(fontSize);
       for (let i = 0; i < qrCodes.length; i++) {
         const qrData = qrCodes[i];
         const pagePos = i % codesPerPage;
@@ -129,14 +161,15 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
         const col = pagePos % codesPerRow;
         if (pagePos === 0 && i > 0) pdf.addPage();
 
-        const x = margin + col * (cellWidth + horizSpacing);
-        const y = margin + 35 + row * (qrSize + vertSpacing + 15);
+        // Centered grid
+        const x = gridStartX + col * (cellWidth + horizSpacing);
+        const y = margin + dynamicTopMargin + row * (qrSize + vertSpacing + lineHeight * 2.2);
 
         // QR code
-        pdf.addImage(qrData.qrCode, "PNG", x, y, qrSize, qrSize);
+        pdf.addImage(qrData.qrCode, "PNG", x + (cellWidth - qrSize) / 2, y, qrSize, qrSize);
 
         // Text
-        let textY = y + qrSize + 5;
+        let textY = y + qrSize + textSpacing;
         const { record } = qrData;
         const hasPage = "daftr_no" in record && "page_no" in record;
         const hasItem = "item_no" in record && "item_count" in record;
@@ -154,7 +187,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             textY,
             { align: "center" }
           );
-          textY += 5;
+          textY += lineHeight;
         }
 
         if (hasItem) {
@@ -170,7 +203,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             textY,
             { align: "center" }
           );
-          textY += 5;
+          textY += lineHeight;
         }
 
         if (!hasPage && !hasItem) {
@@ -183,7 +216,7 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
             textY,
             { align: "center" }
           );
-          textY += 5;
+          textY += lineHeight;
           const rid =
             record.id.length > 20
               ? record.id.substring(0, 20) + "..."
@@ -274,6 +307,84 @@ const PDFExporter: React.FC<PDFExporterProps> = ({ qrCodes }) => {
                   count: qrCodes.length.toString(),
                 })}
               </p>
+            </div>
+
+            {/* QR Size Selection Section */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="mb-2 font-medium text-gray-700">
+                {t('pdfExporter.qrSize.label') || 'QR Code Size'}
+              </div>
+              <div className="flex flex-wrap gap-4 items-center justify-center mb-4">
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="qrSizeMode"
+                    value="select"
+                    checked={qrSizeMode === 'select'}
+                    onChange={() => setQrSizeMode('select')}
+                  />
+                  {t('pdfExporter.qrSize.selectMenu') || 'Select Menu'}
+                </label>
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="qrSizeMode"
+                    value="input"
+                    checked={qrSizeMode === 'input'}
+                    onChange={() => setQrSizeMode('input')}
+                  />
+                  {t('pdfExporter.qrSize.inputNumber') || 'Input Number'}
+                </label>
+                <label className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    name="qrSizeMode"
+                    value="slider"
+                    checked={qrSizeMode === 'slider'}
+                    onChange={() => setQrSizeMode('slider')}
+                  />
+                  {t('pdfExporter.qrSize.slider') || 'Slider'}
+                </label>
+              </div>
+              {/* Select Menu */}
+              {qrSizeMode === 'select' && (
+                <select
+                  className="border rounded px-3 py-1"
+                  value={qrSizeSelect}
+                  onChange={e => setQrSizeSelect(Number(e.target.value))}
+                >
+                  {qrSizeOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label} ({opt.value}mm)</option>
+                  ))}
+                </select>
+              )}
+              {/* Input Number */}
+              {qrSizeMode === 'input' && (
+                <input
+                  type="number"
+                  min={10}
+                  max={100}
+                  step={1}
+                  className="border rounded px-3 py-1"
+                  value={qrSizeInput}
+                  onChange={e => setQrSizeInput(Number(e.target.value))}
+                />
+              )}
+              {/* Slider */}
+              {qrSizeMode === 'slider' && (
+                <input
+                  type="range"
+                  min={10}
+                  max={100}
+                  step={1}
+                  className="w-64"
+                  value={qrSizeSlider}
+                  onChange={e => setQrSizeSlider(Number(e.target.value))}
+                />
+              )}
+              <div className="mt-2 text-sm text-gray-600">
+                {t('pdfExporter.qrSize.current') || 'Current size'}: <span className="font-bold">{qrSize}mm</span>
+              </div>
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6">

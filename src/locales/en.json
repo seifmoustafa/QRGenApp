@@ -109,6 +109,18 @@
     "filename": "qr-codes-{{date}}.pdf",
     "errors": {
       "generateError": "An error occurred while generating the PDF file. Please try again."
+    },
+    "qrSize": {
+      "label": "QR Code Size",
+      "selectMenu": "Select Menu",
+      "inputNumber": "Manual Input",
+      "slider": "Slider",
+      "verySmall": "Very Small",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "veryLarge": "Very Large",
+      "current": "Current size"
     }
   },
   "footer": {
