@@ -76,6 +76,11 @@
   },
   "qrGenerator": {
     "title": "Advanced QR Code Generator",
+    "errorCorrection": "Error Correction Level",
+    "errorCorrectionL": "Low",
+    "errorCorrectionM": "Medium",
+    "errorCorrectionQ": "Quartile",
+    "errorCorrectionH": "High",
     "generating": "Generating high-quality QR codes... ({{current}} of {{total}})",
     "complete": "{{count}}% complete",
     "completed": "Successfully completed",
@@ -112,8 +117,8 @@
     },
     "qrSize": {
       "label": "QR Code Size",
-      "selectMenu": "Select Menu",
-      "inputNumber": "Manual Input",
+      "select": "Select Menu",
+      "input": "Manual Input",
       "slider": "Slider",
       "verySmall": "Very Small",
       "small": "Small",

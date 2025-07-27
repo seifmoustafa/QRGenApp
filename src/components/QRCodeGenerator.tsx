@@ -5,16 +5,29 @@ import { QrCode, Loader2 } from "lucide-react";
 import { useTranslation } from "../hooks/useTranslation";
 import { useLanguage } from "../contexts/LanguageContext";
 import { formatPair } from "../utils/formatPair";
+
 interface QRCodeGeneratorProps {
+  /**
+   * ExpandedData containing:
+   *  - preview: a slice of records for which to generate QR codes
+   *  - groups: grouping information (unused here)
+   *  - total: total record count (unused here)
+   */
   data: ExpandedData;
+  /**
+   * Callback invoked when all QR codes have been generated.
+   * @param qrCodes Array of generated QRCodeData objects
+   */
   onQRCodesGenerated: (qrCodes: QRCodeData[]) => void;
 }
 
 /**
- * Renders "label: a/b" in LTR, or "label: b/a" in RTL
- * so that `a` ends up on the right side of the slash.
+ * QRCodeGenerator
+ *
+ * Observes changes to `data.preview` and generates QR codes in batches.
+ * Provides visual progress feedback and pagination of generated items.
+ * Supports RTL/LTR layout and localized labels.
  */
-
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   data,
   onQRCodesGenerated,
@@ -22,32 +35,60 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
   const { t } = useTranslation();
   const { isRTL } = useLanguage();
 
+  // Generated QR code data
   const [qrCodes, setQrCodes] = useState<QRCodeData[]>([]);
+  // Loading / generating flag
   const [loading, setLoading] = useState(false);
+  // Progress percentage (0–100)
   const [progress, setProgress] = useState(0);
+  // Count of records processed so far
   const [currentRecord, setCurrentRecord] = useState(0);
+  // Whether generation has finished
   const [isComplete, setIsComplete] = useState(false);
+  // Pagination: items per page
   const [pageSize, setPageSize] = useState(12);
+  // Current pagination page
   const [currentPage, setCurrentPage] = useState(1);
+  // Error correction level for QR codes
+  const [errorCorrectionLevel, setErrorCorrectionLevel] = useState<"L" | "M" | "Q" | "H">("M");
 
+  // Total number of pages based on qrCodes length
   const totalPages = Math.ceil(qrCodes.length / pageSize) || 1;
+
+  // Refs to avoid regenerating on identical data and settings
   const generationStartedRef = useRef<string>("");
   const dataHashRef = useRef<string>("");
+  const lastErrorCorrectionRef = useRef<string>("");
 
+  /**
+   * createDataHash
+   *
+   * Produces a simple hash string by joining all record IDs.
+   * Used to detect when `data.preview` has changed.
+   *
+   * @param records Array of ExcelRecord
+   * @returns Concatenated ID string
+   */
   const createDataHash = (records: ExcelRecord[]) =>
     records.map((r) => r.id).join(",");
 
   useEffect(() => {
+    // Do nothing if there's no preview data
     if (data.preview.length === 0) return;
 
-      const currentDataHash = createDataHash(data.preview);
+    const currentDataHash = createDataHash(data.preview);
+    const currentSettingsHash = `${currentDataHash}-${errorCorrectionLevel}`;
+    
+    // Skip if we've already started generation for this identical data set and settings
     if (
       currentDataHash === dataHashRef.current &&
-      generationStartedRef.current === currentDataHash
+      errorCorrectionLevel === lastErrorCorrectionRef.current &&
+      generationStartedRef.current === currentSettingsHash
     ) {
       return;
     }
 
+    // Reset state before generation
     setQrCodes([]);
     setCurrentPage(1);
     setLoading(true);
@@ -55,15 +96,27 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
     setCurrentRecord(0);
     setIsComplete(false);
 
-    generationStartedRef.current = currentDataHash;
+    // Mark that generation has begun for this data hash and settings
+    generationStartedRef.current = currentSettingsHash;
     dataHashRef.current = currentDataHash;
+    lastErrorCorrectionRef.current = errorCorrectionLevel;
 
+    /**
+     * generateQRCodesBatched
+     *
+     * Creates QR codes for records in small batches to avoid blocking UI.
+     * Updates progress and holds intermediate results.
+     *
+     * @param records Array of ExcelRecord to process
+     * @returns Promise resolving to full array of QRCodeData
+     */
     const generateQRCodesBatched = async (records: ExcelRecord[]) => {
       const codes: QRCodeData[] = [];
       const batchSize = 3;
 
       for (let i = 0; i < records.length; i += batchSize) {
-        if (createDataHash(data.preview) !== currentDataHash) {
+        // If data or settings have changed mid-generation, abort early
+        if (createDataHash(data.preview) !== currentDataHash || errorCorrectionLevel !== lastErrorCorrectionRef.current) {
           return codes;
         }
 
@@ -71,15 +124,16 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
         const batchResults = await Promise.all(
           batch.map(async (record) => {
             try {
+              // Serialize record fields (excluding id) into string
               const qrDataString = Object.keys(record)
                 .filter((key) => key !== "id")
                 .map((key) => `${key}: ${record[key]}`)
                 .join("\n");
 
+              // Generate a PNG data URL of the QR code
               const qrCodeDataUrl = await QRCode.toDataURL(qrDataString, {
-                errorCorrectionLevel: "M",
+                errorCorrectionLevel: errorCorrectionLevel,
                 type: "image/png",
-                quality: 0.92,
                 margin: 1,
                 color: { dark: "#000000", light: "#FFFFFF" },
                 width: 256,
@@ -102,23 +156,33 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
           })
         );
 
+        // Append successful codes
         batchResults.forEach((r) => r && codes.push(r));
 
+        // Update progress and UI state
         const completed = Math.min(i + batchSize, records.length);
         setProgress((completed / records.length) * 100);
         setCurrentRecord(completed);
         setQrCodes([...codes]);
 
+        // Small pause to keep UI responsive
         await new Promise((res) => setTimeout(res, 50));
       }
 
       return codes;
     };
 
+    /**
+     * Kick off full QR code generation
+     *
+     * Invokes the batched generator, then finalizes state,
+     * calls the `onQRCodesGenerated` callback, and stops loading.
+     */
     const generateQRCodes = async () => {
       try {
         const codes = await generateQRCodesBatched(data.preview);
-        if (createDataHash(data.preview) === currentDataHash) {
+        // Only finalize if data and settings remain unchanged
+        if (createDataHash(data.preview) === currentDataHash && errorCorrectionLevel === lastErrorCorrectionRef.current) {
           setQrCodes(codes);
           setCurrentPage(1);
           setIsComplete(true);
@@ -127,15 +191,16 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
       } catch (error) {
         console.error("Error generating QR codes:", error);
       } finally {
-        if (createDataHash(data.preview) === currentDataHash) {
+        if (createDataHash(data.preview) === currentDataHash && errorCorrectionLevel === lastErrorCorrectionRef.current) {
           setLoading(false);
         }
       }
     };
 
     generateQRCodes();
-  }, [data, onQRCodesGenerated]);
+  }, [data, onQRCodesGenerated, errorCorrectionLevel]);
 
+  // Nothing to render if there's no preview data
   if (data.preview.length === 0) return null;
 
   return (
@@ -143,6 +208,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
       className={`w-full max-w-6xl mx-auto mt-8 ${isRTL ? "font-arabic" : ""}`}
     >
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+        {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
           <h3
             className={`text-xl font-bold text-white flex items-center gap-2 ${
@@ -154,7 +220,29 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
           </h3>
         </div>
 
+        {/* Body */}
         <div className="p-6">
+          {/* Error Correction Level Control - Always show when there's data */}
+          {data.preview.length > 0 && (
+            <div className={`mb-6 flex items-center gap-4 ${isRTL ? "flex-row-reverse" : ""}`}>
+              <label htmlFor="error-correction" className="text-sm font-medium text-gray-700">
+                {t("qrGenerator.errorCorrection")}:
+              </label>
+              <select
+                id="error-correction"
+                value={errorCorrectionLevel}
+                onChange={(e) => setErrorCorrectionLevel(e.target.value as "L" | "M" | "Q" | "H")}
+                className="border-gray-300 rounded p-2 text-sm"
+              >
+                <option value="L">{t("qrGenerator.errorCorrectionL")} (7%)</option>
+                <option value="M">{t("qrGenerator.errorCorrectionM")} (15%)</option>
+                <option value="Q">{t("qrGenerator.errorCorrectionQ")} (25%)</option>
+                <option value="H">{t("qrGenerator.errorCorrectionH")} (30%)</option>
+              </select>
+            </div>
+          )}
+
+          {/* Loading / Progress Indicator */}
           {loading && !isComplete && (
             <div className="text-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-4" />
@@ -178,8 +266,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
             </div>
           )}
 
+          {/* QR Code Grid */}
           {qrCodes.length > 0 && (
             <>
+              {/* Status Banner */}
               <div className="mb-6 text-center">
                 <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -195,6 +285,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                 </div>
               </div>
 
+              {/* Paginated Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {qrCodes
                   .slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -221,7 +312,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                             />
                           </div>
 
-                          {/* flipped pairs here */}
+                          {/* Record details below QR */}
                           {hasPage && (
                             <p className="text-xs text-gray-500 text-center">
                               {formatPair(
@@ -242,7 +333,6 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                               )}
                             </p>
                           )}
-
                           {!hasPage && !hasItem && (
                             <>
                               <p className="text-sm font-medium text-gray-700 mb-1 text-center">
@@ -269,6 +359,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
                   })}
               </div>
 
+              {/* Pagination Controls */}
               <div
                 className={`mt-6 flex items-center justify-between gap-4 ${
                   isRTL ? "flex-row-reverse" : ""
@@ -341,6 +432,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({
             </>
           )}
 
+          {/* No QR codes generated message */}
           {!loading && qrCodes.length === 0 && data.preview.length > 0 && (
             <div className="text-center py-8">
               <p className="text-gray-500 text-center">

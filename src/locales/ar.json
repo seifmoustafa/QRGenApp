@@ -76,6 +76,11 @@
   },
   "qrGenerator": {
     "title": "مولد رموز QR المتقدم",
+    "errorCorrection": "مستوى تصحيح الأخطاء",
+    "errorCorrectionL": "منخفض",
+    "errorCorrectionM": "متوسط",
+    "errorCorrectionQ": "رباعي",
+    "errorCorrectionH": "عالي",
     "generating": "جاري إنشاء رموز QR عالية الجودة... ({{current}} من {{total}})",
     "complete": "{{count}}% مكتمل",
     "completed": "تم الانتهاء بنجاح",
@@ -112,8 +117,8 @@
     },
     "qrSize": {
       "label": "حجم رمز QR",
-      "selectMenu": "اختيار من القائمة",
-      "inputNumber": "إدخال يدوي",
+      "select": "اختيار من القائمة",
+      "input": "إدخال يدوي",
       "slider": "شريط تمرير",
       "verySmall": "صغير جدًا",
       "small": "صغير",
